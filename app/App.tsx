@@ -17,6 +17,22 @@ import { ThankYouScreen } from "./components/ThankYouScreen";
 const KIOSK_W = 1080;
 const KIOSK_H = 1920;
 
+type CartItem = {
+  id: string;
+  name: string;
+  image: string;
+  size?: string;
+  teamName?: string;
+  category?: string;
+  demographic?: string;
+};
+
+const getSelectedSize = (itemId: string) => {
+  const sizeMarker = "__size:";
+  const markerIndex = itemId.indexOf(sizeMarker);
+  return markerIndex >= 0 ? itemId.slice(markerIndex + sizeMarker.length) : undefined;
+};
+
 export default function App() {
   const [scale, setScale] = useState(1);
   const [offsetX, setOffsetX] = useState(0);
@@ -45,7 +61,7 @@ export default function App() {
   const [selectedItemId, setSelectedItemId] = useState<string>("");
   const [selectedItemName, setSelectedItemName] = useState<string>("");
   const [selectedItemImage, setSelectedItemImage] = useState<string>("");
-  const [cartItems, setCartItems] = useState<{ id: string; name: string; image: string }[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const resetAll = () => {
     setCartItems([]);
@@ -130,7 +146,18 @@ export default function App() {
                 setSelectedItemId(itemId);
                 setSelectedItemName(itemName);
                 setSelectedItemImage(itemImage);
-                setCartItems(prev => [...prev, { id: itemId, name: itemName, image: itemImage }]);
+                setCartItems(prev => [
+                  ...prev,
+                  {
+                    id: itemId,
+                    name: itemName,
+                    image: itemImage,
+                    size: getSelectedSize(itemId),
+                    teamName: selectedTeam.name,
+                    category: selectedCategory,
+                    demographic: selectedDemographic,
+                  },
+                ]);
               }}
               onComplete={() => setCurrentScreen("onlineavailable")}
               onHome={() => setCurrentScreen("welcome")}

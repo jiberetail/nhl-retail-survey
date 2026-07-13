@@ -1,16 +1,55 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
+import { ExternalLink, ScanLine, ShoppingCart } from "lucide-react";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
+type CartItem = {
+  id: string;
+  name: string;
+  image: string;
+  size?: string;
+  teamName?: string;
+  category?: string;
+  demographic?: string;
+};
+
 interface OnlineAvailableScreenProps {
   onComplete: () => void;
   onContinueShopping: () => void;
-  cartItems: { id: string; name: string; image: string }[];
+  cartItems: CartItem[];
 }
+
+const NHL_SHOP_URL = "https://shop.nhl.com";
+
+const getItemSize = (item: CartItem) => {
+  if (item.size) return item.size;
+  const sizeMarker = "__size:";
+  const markerIndex = item.id.indexOf(sizeMarker);
+  return markerIndex >= 0 ? item.id.slice(markerIndex + sizeMarker.length) : undefined;
+};
+
+const buildNhlShopUrl = (cartItems: CartItem[]) => {
+  if (!cartItems.length) return `${NHL_SHOP_URL}/cart`;
+
+  const uniqueSearchTerms = Array.from(
+    new Set(
+      cartItems.slice(0, 5).map(item => {
+        const searchParts = [item.teamName, item.name].filter(Boolean);
+        return searchParts.join(" ").replace(/\s+/g, " ").trim();
+      }).filter(Boolean)
+    )
+  );
+
+  const query = uniqueSearchTerms.join(" ");
+  if (!query) return `${NHL_SHOP_URL}/cart`;
+
+  return `${NHL_SHOP_URL}/search?query=${encodeURIComponent(query)}`;
+};
 
 export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItems }: OnlineAvailableScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const nhlShopCartUrl = useMemo(() => buildNhlShopUrl(cartItems), [cartItems]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -82,12 +121,18 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
               const imgSize = cartItems.length === 1 ? 500 : cartItems.length === 2 ? 260 : 160;
               const fontSize = cartItems.length === 1 ? 40 : cartItems.length === 2 ? 34 : 28;
               const padding = cartItems.length === 1 ? "32px 40px" : "20px 32px";
+              const itemSize = getItemSize(item);
               return (
                 <div key={i} className="flex flex-col items-center bg-white rounded-2xl shadow-lg" style={{ padding }}>
                   {item.image && (
                     <img src={item.image} alt={item.name} className="object-contain" style={{ width: imgSize, height: imgSize }} />
                   )}
                   <p className="font-black text-black leading-tight text-center" style={{ fontSize, marginTop: 16 }}>{item.name}</p>
+                  {itemSize && (
+                    <p className="font-bold text-black/50 text-center" style={{ fontSize: Math.max(24, fontSize - 8), marginTop: 8 }}>
+                      Size {itemSize}
+                    </p>
+                  )}
                 </div>
               );
             })}
@@ -99,23 +144,54 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="flex flex-col items-center flex-shrink-0"
-          style={{ marginBottom: 32 }}
+          className="flex-shrink-0"
+          style={{ marginBottom: 28 }}
         >
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200" style={{ padding: 24 }}>
-            <QRCodeSVG
-              value="https://shop.nhl.com"
-              size={200}
-              level="H"
-              includeMargin={false}
-            />
-          </div>
-          <p className="font-black text-black text-center" style={{ fontSize: 44, marginTop: 20 }}>
-            Scan to complete your purchase & have your items shipped home.
-          </p>
-          <p className="font-semibold text-black/50 text-center" style={{ fontSize: 38, marginTop: 12 }}>
-            Then get back to the game! 🏒
-          </p>
+          <a
+            href={nhlShopCartUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open NHL Shop checkout link"
+            className="relative block overflow-hidden rounded-3xl"
+            style={{
+              padding: "26px 30px",
+              background: "linear-gradient(135deg, #050505 0%, #151515 54%, #d71920 100%)",
+              boxShadow: "0 22px 46px rgba(0,0,0,0.28), 0 0 0 7px rgba(215,25,32,0.18)",
+            }}
+          >
+            <div className="absolute inset-0 pointer-events-none" style={{ border: "3px solid rgba(255,255,255,0.22)", borderRadius: 24 }} />
+            <div className="relative z-10 flex items-center justify-center" style={{ gap: 30 }}>
+              <div className="bg-white shadow-2xl" style={{ padding: 18, borderRadius: 18 }}>
+                <QRCodeSVG
+                  value={nhlShopCartUrl}
+                  size={238}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center" style={{ gap: 12, marginBottom: 12 }}>
+                  <span className="inline-flex items-center justify-center rounded-full" style={{ width: 54, height: 54, background: "#d71920" }}>
+                    <ScanLine className="text-white" size={32} strokeWidth={3} />
+                  </span>
+                  <p className="font-black uppercase text-white/80 tracking-normal" style={{ fontSize: 28 }}>
+                    NHL Shop checkout link
+                  </p>
+                </div>
+                <p className="font-black uppercase text-white leading-none" style={{ fontSize: 54 }}>
+                  Scan to complete your purchase
+                </p>
+                <p className="font-black text-white leading-tight" style={{ fontSize: 36, marginTop: 10 }}>
+                  and have your items shipped home.
+                </p>
+                <div className="inline-flex items-center rounded-full bg-white text-black" style={{ gap: 10, marginTop: 18, padding: "12px 18px" }}>
+                  <ShoppingCart size={28} strokeWidth={3} />
+                  <span className="font-black uppercase" style={{ fontSize: 24 }}>Selected items included</span>
+                  <ExternalLink size={24} strokeWidth={3} />
+                </div>
+              </div>
+            </div>
+          </a>
         </motion.div>
 
         {/* Buttons */}
