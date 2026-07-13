@@ -160,6 +160,7 @@ export default function App() {
           {currentScreen === "purchasesurvey" && (
             <PurchaseSurveyScreen
               onComplete={() => setCurrentScreen("complete")}
+              onBack={() => setCurrentScreen("emailcapture")}
               onHome={resetAll}
             />
           )}

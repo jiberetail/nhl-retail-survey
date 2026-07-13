@@ -8,6 +8,7 @@ import { allInventoryItems, InventoryItem } from "../data/inventory";
 interface PurchaseSurveyScreenProps {
   onComplete: () => void;
   onHome: () => void;
+  onBack: () => void;
 }
 
 type SurveyStep = "found" | "missingItem" | "experience" | "affected" | "associate" | "associateRating";
@@ -25,7 +26,7 @@ const affectedReasons = [
 
 const associateRatings = ["Satisfied", "Neutral", "Dissatisfied"];
 
-export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScreenProps) {
+export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSurveyScreenProps) {
   const [step, setStep] = useState<SurveyStep>("found");
   const [foundEverything, setFoundEverything] = useState<YesNo | null>(null);
   const [shoppingSatisfied, setShoppingSatisfied] = useState<YesNo | null>(null);
@@ -55,16 +56,6 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
     };
   }, []);
 
-  const runAfterPress = (buttonId: string, action: () => void) => {
-    if (pressTimeoutRef.current) return;
-    setPressedButton(buttonId);
-    pressTimeoutRef.current = setTimeout(() => {
-      action();
-      setPressedButton(null);
-      pressTimeoutRef.current = null;
-    }, 180);
-  };
-
   const filteredItems = useMemo(() => {
     const query = itemSearch.trim().toLowerCase();
     if (!query) return [];
@@ -78,27 +69,37 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
       .slice(0, 8);
   }, [itemSearch]);
 
+  const flashButton = (buttonId: string, action: () => void) => {
+    if (pressTimeoutRef.current) {
+      clearTimeout(pressTimeoutRef.current);
+    }
+    setPressedButton(buttonId);
+    action();
+    pressTimeoutRef.current = setTimeout(() => {
+      setPressedButton(null);
+      pressTimeoutRef.current = null;
+    }, 180);
+  };
+
   const selectFoundEverything = (answer: YesNo) => {
     setFoundEverything(answer);
     setShoppingSatisfied(null);
     setAffectedReason("");
     setAssociateAssisted(null);
     setAssociateRating("");
-    if (answer === "yes") {
-      setStep("experience");
-      return;
-    }
-    setItemSearch("");
     setSelectedItem(null);
+    setItemSearch("");
     setShowDropdown(false);
-    setStep("missingItem");
   };
 
   const selectMissingItem = (item: InventoryItem) => {
     setSelectedItem(item);
     setItemSearch(item.name);
     setShowDropdown(false);
-    setStep("experience");
+    setShoppingSatisfied(null);
+    setAffectedReason("");
+    setAssociateAssisted(null);
+    setAssociateRating("");
   };
 
   const useTypedItem = () => {
@@ -112,28 +113,81 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
     setAffectedReason("");
     setAssociateAssisted(null);
     setAssociateRating("");
-    setStep(answer === "yes" ? "associate" : "affected");
   };
 
   const selectAffectedReason = (reason: string) => {
     setAffectedReason(reason);
     setAssociateAssisted(null);
     setAssociateRating("");
-    setStep("associate");
   };
 
   const selectAssociateAssisted = (answer: YesNo) => {
     setAssociateAssisted(answer);
     setAssociateRating("");
-    if (answer === "no") {
-      onComplete();
-      return;
-    }
-    setStep("associateRating");
   };
 
   const selectAssociateRating = (rating: string) => {
     setAssociateRating(rating);
+  };
+
+  const canContinue =
+    (step === "found" && foundEverything !== null) ||
+    (step === "missingItem" && selectedItem !== null) ||
+    (step === "experience" && shoppingSatisfied !== null) ||
+    (step === "affected" && affectedReason !== "") ||
+    (step === "associate" && associateAssisted !== null) ||
+    (step === "associateRating" && associateRating !== "");
+
+  const goBack = () => {
+    if (step === "found") {
+      onBack();
+      return;
+    }
+    if (step === "missingItem") {
+      setStep("found");
+      return;
+    }
+    if (step === "experience") {
+      setStep(foundEverything === "no" ? "missingItem" : "found");
+      return;
+    }
+    if (step === "affected") {
+      setStep("experience");
+      return;
+    }
+    if (step === "associate") {
+      setStep(shoppingSatisfied === "no" ? "affected" : "experience");
+      return;
+    }
+    setStep("associate");
+  };
+
+  const goForward = () => {
+    if (!canContinue) return;
+    if (step === "found") {
+      setStep(foundEverything === "no" ? "missingItem" : "experience");
+      return;
+    }
+    if (step === "missingItem") {
+      setStep("experience");
+      return;
+    }
+    if (step === "experience") {
+      setStep(shoppingSatisfied === "no" ? "affected" : "associate");
+      return;
+    }
+    if (step === "affected") {
+      setStep("associate");
+      return;
+    }
+    if (step === "associate") {
+      if (associateAssisted === "yes") {
+        setStep("associateRating");
+        return;
+      }
+      onComplete();
+      return;
+    }
     onComplete();
   };
 
@@ -153,7 +207,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
 
     return (
       <motion.button
-        onClick={() => runAfterPress(buttonId, onClick)}
+        onClick={() => flashButton(buttonId, onClick)}
         className={`relative overflow-hidden rounded-xl font-black transition-all ${flex ? "flex-1" : "w-full"} ${
           isPressed ? "text-white" : "text-black"
         }`}
@@ -176,6 +230,38 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
       </motion.button>
     );
   };
+
+  const NavButton = ({
+    children,
+    onClick,
+    primary = false,
+    disabled = false,
+  }: {
+    children: string;
+    onClick: () => void;
+    primary?: boolean;
+    disabled?: boolean;
+  }) => (
+    <motion.button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex-1 rounded-xl font-black transition-all ${primary && !disabled ? "text-white" : "text-black"}`}
+      style={{
+        fontSize: 40,
+        minHeight: 100,
+        padding: "26px 30px",
+        background: disabled ? "#d1d5db" : primary ? activeBg : inactiveBg,
+        color: disabled ? "#9ca3af" : primary ? "#fff" : "#000",
+        border: primary ? "none" : "2px solid rgba(0,0,0,0.22)",
+        boxShadow: disabled ? "none" : "0 12px 30px rgba(0,0,0,0.14)",
+        cursor: disabled ? "not-allowed" : "pointer",
+      }}
+      whileHover={!disabled ? { scale: 1.015 } : {}}
+      whileTap={!disabled ? { scale: 0.97 } : {}}
+    >
+      {children}
+    </motion.button>
+  );
 
   const QuestionShell = ({
     question,
@@ -236,9 +322,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
       >
         <AnimatePresence mode="wait">
           {step === "found" && (
-            <QuestionShell
-              question="Did you find everything you were looking for in the store today?"
-            >
+            <QuestionShell question="Did you find everything you were looking for in the store today?">
               <div className="flex" style={{ gap: 18 }}>
                 <OptionButton active={foundEverything === "yes"} onClick={() => selectFoundEverything("yes")} flex>
                   Yes
@@ -274,21 +358,31 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
                 {showDropdown && itemSearch.trim() && (
                   <div
                     className="absolute left-0 right-0 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-y-auto"
-                    style={{ top: "calc(100% + 8px)", maxHeight: 520 }}
+                    style={{ top: "calc(100% + 8px)", maxHeight: 500 }}
                   >
                     {filteredItems.map((item) => (
                       <button
                         key={`${item.team}-${item.category}-${item.name}`}
                         onClick={() => selectMissingItem(item)}
                         className="w-full text-left hover:bg-gray-50 transition-all"
-                        style={{ padding: "20px 28px", borderBottom: "1px solid #f3f4f6" }}
+                        style={{ padding: "18px 24px", borderBottom: "1px solid #f3f4f6" }}
                       >
-                        <p className="font-black text-black" style={{ fontSize: 32, lineHeight: 1.18 }}>
-                          {item.name}
-                        </p>
-                        <p className="text-black/50" style={{ fontSize: 26, marginTop: 4 }}>
-                          {item.team} - {item.category}
-                        </p>
+                        <div className="flex items-center" style={{ gap: 22 }}>
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="object-contain flex-shrink-0"
+                            style={{ width: 92, height: 92 }}
+                          />
+                          <div>
+                            <p className="font-black text-black" style={{ fontSize: 32, lineHeight: 1.18 }}>
+                              {item.name}
+                            </p>
+                            <p className="text-black/50" style={{ fontSize: 26, marginTop: 4 }}>
+                              {item.team} - {item.category}
+                            </p>
+                          </div>
+                        </div>
                       </button>
                     ))}
 
@@ -337,9 +431,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
           )}
 
           {step === "experience" && (
-            <QuestionShell
-              question="Are you satisfied with your shopping experience?"
-            >
+            <QuestionShell question="Are you satisfied with your shopping experience?">
               <div className="flex" style={{ gap: 18 }}>
                 <OptionButton active={shoppingSatisfied === "yes"} onClick={() => selectShoppingSatisfied("yes")} flex>
                   Yes
@@ -352,9 +444,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
           )}
 
           {step === "affected" && (
-            <QuestionShell
-              question="What affected your shopping experience?"
-            >
+            <QuestionShell question="What affected your shopping experience?">
               <div className="flex flex-col" style={{ gap: 16 }}>
                 {affectedReasons.map((reason) => (
                   <OptionButton
@@ -370,9 +460,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
           )}
 
           {step === "associate" && (
-            <QuestionShell
-              question="Did an associate assist you in the store today?"
-            >
+            <QuestionShell question="Did an associate assist you in the store today?">
               <div className="flex" style={{ gap: 18 }}>
                 <OptionButton active={associateAssisted === "yes"} onClick={() => selectAssociateAssisted("yes")} flex>
                   Yes
@@ -400,6 +488,19 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
             </QuestionShell>
           )}
         </AnimatePresence>
+
+        <motion.div
+          key={`nav-${step}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex"
+          style={{ gap: 18, marginTop: 56 }}
+        >
+          <NavButton onClick={goBack}>Back</NavButton>
+          <NavButton onClick={goForward} primary disabled={!canContinue}>
+            Continue
+          </NavButton>
+        </motion.div>
       </div>
 
       <div className="absolute left-1/2 -translate-x-1/2 z-30" style={{ bottom: 32 }}>
