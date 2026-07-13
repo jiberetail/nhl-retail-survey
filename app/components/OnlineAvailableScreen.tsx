@@ -33,52 +33,23 @@ const getItemSize = (item: CartItem) => {
   return markerIndex >= 0 ? item.id.slice(markerIndex + sizeMarker.length) : undefined;
 };
 
-const encodeCheckoutPayload = (cartItems: CartItem[]) => {
-  const payload = JSON.stringify(
-    cartItems
-      .slice(0, 5)
-      .map((item) => {
-        if (!item.productUrl) return null;
-
-        try {
-          const productUrl = new URL(item.productUrl);
-          if (productUrl.hostname !== "shop.nhl.com") return null;
-
-          return [
-            `${productUrl.pathname}${productUrl.search}`,
-            getItemSize(item) ?? "",
-          ];
-        } catch {
-          return null;
-        }
-      })
-      .filter((item): item is [string, string] => item !== null)
-  );
-  const bytes = new TextEncoder().encode(payload);
-  let binary = "";
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-};
-
 const buildNhlShopUrl = (cartItems: CartItem[]) => {
-  if (!cartItems.length) return `${NHL_SHOP_URL}/cart`;
+  const firstProductUrl = cartItems[0]?.productUrl;
+  if (!firstProductUrl) return `${NHL_SHOP_URL}/cart`;
 
-  const productUrls = cartItems
-    .map((item) => item.productUrl)
-    .filter((url): url is string => Boolean(url));
-
-  if (productUrls.length === 1) return productUrls[0];
-  if (typeof window === "undefined") return productUrls[0] ?? `${NHL_SHOP_URL}/cart`;
-
-  return `${window.location.origin}/c?i=${encodeCheckoutPayload(cartItems)}`;
+  try {
+    const productUrl = new URL(firstProductUrl);
+    return productUrl.protocol === "https:" && productUrl.hostname === "shop.nhl.com"
+      ? productUrl.href
+      : `${NHL_SHOP_URL}/cart`;
+  } catch {
+    return `${NHL_SHOP_URL}/cart`;
+  }
 };
 
 export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItems }: OnlineAvailableScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const nhlShopCartUrl = useMemo(() => buildNhlShopUrl(cartItems), [cartItems]);
+  const nhlShopProductUrl = useMemo(() => buildNhlShopUrl(cartItems), [cartItems]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -177,10 +148,10 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
           style={{ marginBottom: 28 }}
         >
           <a
-            href={nhlShopCartUrl}
+            href={nhlShopProductUrl}
             target="_blank"
             rel="noreferrer"
-            aria-label="Open NHL Shop checkout link"
+            aria-label="Open the first cart item on NHL Shop"
             className="relative block overflow-hidden rounded-3xl"
             style={{
               padding: "26px 30px",
@@ -192,7 +163,7 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
             <div className="relative z-10 flex items-center justify-center" style={{ gap: 30 }}>
               <div className="bg-white shadow-2xl" style={{ padding: 18, borderRadius: 18 }}>
                 <QRCodeSVG
-                  value={nhlShopCartUrl}
+                  value={nhlShopProductUrl}
                   size={238}
                   level="L"
                   includeMargin={false}
