@@ -60,7 +60,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <span style={{ display: "block", whiteSpace: "nowrap", fontSize: 126, letterSpacing: "-3px" }}>Order it Here</span>
+          <span style={{ display: "block", whiteSpace: "nowrap", fontSize: 126, letterSpacing: "-3px" }}>ORDER IT HERE</span>
           <span style={{ display: "block" }}>SHIP IT HOME!</span>
         </motion.p>
 
