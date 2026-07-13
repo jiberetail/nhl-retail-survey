@@ -1,7 +1,7 @@
 import { useRef, useEffect, useMemo } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
-import { ExternalLink, ScanLine, ShoppingCart } from "lucide-react";
+import { ScanLine } from "lucide-react";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 type CartItem = {
@@ -170,13 +170,10 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center" style={{ gap: 12, marginBottom: 12 }}>
+                <div className="flex items-center" style={{ marginBottom: 12 }}>
                   <span className="inline-flex items-center justify-center rounded-full" style={{ width: 54, height: 54, background: "#d71920" }}>
                     <ScanLine className="text-white" size={32} strokeWidth={3} />
                   </span>
-                  <p className="font-black uppercase text-white/80 tracking-normal" style={{ fontSize: 28 }}>
-                    NHL Shop product links
-                  </p>
                 </div>
                 <p className="font-black uppercase text-white leading-none" style={{ fontSize: 54 }}>
                   Scan to complete your purchase
@@ -184,11 +181,6 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
                 <p className="font-black text-white leading-tight" style={{ fontSize: 36, marginTop: 10 }}>
                   and have your items shipped home.
                 </p>
-                <div className="inline-flex items-center rounded-full bg-white text-black" style={{ gap: 10, marginTop: 18, padding: "12px 18px" }}>
-                  <ShoppingCart size={28} strokeWidth={3} />
-                  <span className="font-black uppercase" style={{ fontSize: 24 }}>NHL links included</span>
-                  <ExternalLink size={24} strokeWidth={3} />
-                </div>
               </div>
             </div>
           </a>
