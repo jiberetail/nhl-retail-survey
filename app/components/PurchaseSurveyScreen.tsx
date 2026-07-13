@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect, type ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, CircleHelp, Clock, Home, Search, UserX } from "lucide-react";
+import { ArrowLeft, CircleHelp, Clock, Home, Search, UserX, X } from "lucide-react";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 import { allInventoryItems, InventoryItem } from "../data/inventory";
@@ -64,6 +64,10 @@ const associateRatingTones: Record<string, OptionTone> = {
   Neutral: "neutral",
   Dissatisfied: "red",
 };
+
+const maxMissingItems = 5;
+
+const getItemKey = (item: InventoryItem) => `${item.team}::${item.category}::${item.name}`;
 
 function OptionButton({
   active,
@@ -175,7 +179,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
   const [associateRating, setAssociateRating] = useState("");
   const [itemSearch, setItemSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [selectedItems, setSelectedItems] = useState<InventoryItem[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -191,13 +195,18 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
     if (!query) return [];
 
     return allInventoryItems
-      .filter((item) =>
-        item.name.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query) ||
-        item.team.toLowerCase().includes(query)
-      )
+      .filter((item) => {
+        const matchesQuery =
+          item.name.toLowerCase().includes(query) ||
+          item.category.toLowerCase().includes(query) ||
+          item.team.toLowerCase().includes(query);
+        const isSelected = selectedItems.some((selected) => getItemKey(selected) === getItemKey(item));
+        return matchesQuery && !isSelected;
+      })
       .slice(0, 8);
-  }, [itemSearch]);
+  }, [itemSearch, selectedItems]);
+
+  const canAddMissingItem = selectedItems.length < maxMissingItems;
 
   const selectFoundEverything = (answer: YesNo) => {
     setFoundEverything(answer);
@@ -205,14 +214,22 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
     setAffectedReason("");
     setAssociateAssisted(null);
     setAssociateRating("");
-    setSelectedItem(null);
+    setSelectedItems([]);
     setItemSearch("");
     setShowDropdown(false);
   };
 
   const selectMissingItem = (item: InventoryItem) => {
-    setSelectedItem(item);
-    setItemSearch(item.name);
+    setSelectedItems((currentItems) => {
+      if (currentItems.some((selected) => getItemKey(selected) === getItemKey(item))) {
+        return currentItems;
+      }
+      if (currentItems.length >= maxMissingItems) {
+        return currentItems;
+      }
+      return [...currentItems, item];
+    });
+    setItemSearch("");
     setShowDropdown(false);
     setShoppingSatisfied(null);
     setAffectedReason("");
@@ -224,6 +241,12 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
     const name = itemSearch.trim();
     if (!name) return;
     selectMissingItem({ name, category: "Requested item", team: "NHL Shop", image: "" });
+  };
+
+  const removeMissingItem = (item: InventoryItem) => {
+    setSelectedItems((currentItems) =>
+      currentItems.filter((selected) => getItemKey(selected) !== getItemKey(item))
+    );
   };
 
   const selectShoppingSatisfied = (answer: YesNo) => {
@@ -250,7 +273,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
 
   const canContinue =
     (step === "found" && foundEverything !== null) ||
-    (step === "missingItem" && selectedItem !== null) ||
+    (step === "missingItem" && selectedItems.length > 0) ||
     (step === "experience" && shoppingSatisfied !== null) ||
     (step === "affected" && affectedReason !== "") ||
     (step === "associate" && associateAssisted !== null) ||
@@ -366,17 +389,22 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
                   type="text"
                   value={itemSearch}
                   onChange={(e) => {
+                    if (!canAddMissingItem) return;
                     setItemSearch(e.target.value);
-                    setSelectedItem(null);
                     setShowDropdown(true);
                   }}
-                  onFocus={() => setShowDropdown(true)}
-                  placeholder="Search jerseys, hats, accessories..."
+                  onFocus={() => setShowDropdown(canAddMissingItem)}
+                  placeholder={canAddMissingItem ? "Search jerseys, hats, accessories..." : "5 items added"}
+                  disabled={!canAddMissingItem}
                   className="w-full rounded-xl border-2 border-gray-300 bg-white text-black focus:outline-none focus:border-black"
-                  style={{ fontSize: 40, padding: "32px 32px 32px 88px" }}
+                  style={{
+                    fontSize: 40,
+                    padding: "32px 32px 32px 88px",
+                    opacity: canAddMissingItem ? 1 : 0.72,
+                  }}
                 />
 
-                {showDropdown && itemSearch.trim() && (
+                {showDropdown && canAddMissingItem && itemSearch.trim() && (
                   <div
                     className="absolute left-0 right-0 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-y-auto"
                     style={{ top: "calc(100% + 8px)", maxHeight: 500 }}
@@ -423,28 +451,65 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
                 )}
               </div>
 
-              {selectedItem && (
+              {selectedItems.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center bg-white rounded-xl shadow-lg"
-                  style={{ marginTop: 26, padding: "18px 24px", gap: 24 }}
+                  className="bg-white rounded-xl shadow-lg"
+                  style={{ marginTop: 26, padding: "18px 20px" }}
                 >
-                  {selectedItem.image && (
-                    <img
-                      src={selectedItem.image}
-                      alt={selectedItem.name}
-                      className="object-contain flex-shrink-0"
-                      style={{ width: 116, height: 116 }}
-                    />
-                  )}
-                  <div>
-                    <p className="font-black text-black" style={{ fontSize: 32, lineHeight: 1.2 }}>
-                      {selectedItem.name}
+                  <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
+                    <p className="font-black text-black" style={{ fontSize: 28 }}>
+                      Items added
                     </p>
-                    <p className="text-black/50" style={{ fontSize: 26 }}>
-                      {selectedItem.team} - {selectedItem.category}
+                    <p className="font-black text-black/45" style={{ fontSize: 26 }}>
+                      {selectedItems.length}/{maxMissingItems}
                     </p>
+                  </div>
+                  <div className="flex flex-col" style={{ gap: 12 }}>
+                    {selectedItems.map((item) => (
+                      <div
+                        key={getItemKey(item)}
+                        className="flex items-center rounded-lg"
+                        style={{
+                          gap: 18,
+                          padding: "12px 12px 12px 16px",
+                          background: "rgba(243,244,246,0.92)",
+                          border: "1px solid rgba(156,163,175,0.45)",
+                        }}
+                      >
+                        {item.image && (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="object-contain flex-shrink-0"
+                            style={{ width: 74, height: 74 }}
+                          />
+                        )}
+                        <div className="min-w-0" style={{ flex: 1 }}>
+                          <p className="font-black text-black truncate" style={{ fontSize: 28, lineHeight: 1.12 }}>
+                            {item.name}
+                          </p>
+                          <p className="text-black/50 truncate" style={{ fontSize: 22, marginTop: 2 }}>
+                            {item.team} - {item.category}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeMissingItem(item)}
+                          aria-label={`Remove ${item.name}`}
+                          className="flex items-center justify-center rounded-full bg-white shadow-sm"
+                          style={{
+                            width: 54,
+                            height: 54,
+                            border: "2px solid rgba(220,38,38,0.28)",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <X style={{ width: 30, height: 30, color: "#dc2626" }} strokeWidth={3} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </motion.div>
               )}
