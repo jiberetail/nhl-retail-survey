@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Home, ArrowLeft } from "lucide-react";
+import { findNhlTeamCatalog } from "../data/nhlCatalog";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 const bruinsJerseyImg = "/imports/0041_-_Men_s_Boston_Bruins_Charlie_McAvoy_Fanatics_Black_Home_Breakaway_Player_Jersey-1.jpg";
@@ -42,7 +43,17 @@ export function MerchCategoryScreen({ sport, teamName, teamLogo, onComplete, onH
     "Anaheim Ducks": { jerseys: ducksJerseyImg, hats: ducksHatImg, shirts: ducksShirtImg, accessories: ducksAccessoriesImg },
   };
 
-  const teamImages = teamCategoryImages[teamName] ?? {};
+  const teamCatalog = findNhlTeamCatalog(teamName);
+  const imageOverrides = teamCategoryImages[teamName];
+  const getCatalogImage = (category: "jerseys" | "hats" | "shirts" | "accessories") =>
+    teamCatalog?.categories[category].find((product) => product.image)?.image ?? teamLogo ?? "";
+
+  const teamImages = {
+    jerseys: imageOverrides?.jerseys ?? getCatalogImage("jerseys"),
+    hats: imageOverrides?.hats ?? getCatalogImage("hats"),
+    shirts: imageOverrides?.shirts ?? getCatalogImage("shirts"),
+    accessories: imageOverrides?.accessories ?? getCatalogImage("accessories"),
+  };
 
   const categories = [
     { id: "jerseys", name: "Jerseys", image: teamImages.jerseys ?? "" },
