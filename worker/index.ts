@@ -42,6 +42,31 @@ const isNhlShopUrl = (value: string) => {
   }
 };
 
+const getProductNameFromUrl = (productUrl: string) => {
+  try {
+    const pathSegments = new URL(productUrl).pathname.split("/").filter(Boolean);
+    const productSlug = pathSegments[1] || pathSegments[0] || "NHL Shop item";
+
+    return decodeURIComponent(productSlug)
+      .replace(/^-+|-+$/g, "")
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (character) => character.toUpperCase());
+  } catch {
+    return "NHL Shop item";
+  }
+};
+
+const getNhlShopUrl = (value: unknown) => {
+  if (typeof value !== "string" || !value) return "";
+
+  try {
+    const productUrl = new URL(value, "https://shop.nhl.com");
+    return productUrl.hostname === "shop.nhl.com" ? productUrl.toString() : "";
+  } catch {
+    return "";
+  }
+};
+
 const decodeCheckoutItems = (encodedItems: string | null): CheckoutLinkItem[] => {
   if (!encodedItems) return [];
 
@@ -53,13 +78,26 @@ const decodeCheckoutItems = (encodedItems: string | null): CheckoutLinkItem[] =>
     if (!Array.isArray(parsed)) return [];
 
     return parsed
-      .map((item) => ({
-        name: typeof item.name === "string" ? item.name : "",
-        image: typeof item.image === "string" ? item.image : "",
-        size: typeof item.size === "string" ? item.size : "",
-        productUrl: typeof item.productUrl === "string" && isNhlShopUrl(item.productUrl) ? item.productUrl : "",
-        categoryUrl: typeof item.categoryUrl === "string" && isNhlShopUrl(item.categoryUrl) ? item.categoryUrl : "",
-      }))
+      .map((item) => {
+        if (Array.isArray(item)) {
+          const productUrl = getNhlShopUrl(item[0]);
+          return {
+            name: getProductNameFromUrl(productUrl),
+            image: "",
+            size: typeof item[1] === "string" ? item[1] : "",
+            productUrl,
+            categoryUrl: "",
+          };
+        }
+
+        return {
+          name: typeof item.name === "string" ? item.name : "",
+          image: typeof item.image === "string" ? item.image : "",
+          size: typeof item.size === "string" ? item.size : "",
+          productUrl: typeof item.productUrl === "string" && isNhlShopUrl(item.productUrl) ? item.productUrl : "",
+          categoryUrl: typeof item.categoryUrl === "string" && isNhlShopUrl(item.categoryUrl) ? item.categoryUrl : "",
+        };
+      })
       .filter((item) => item.productUrl || item.categoryUrl)
       .slice(0, 5);
   } catch {
@@ -69,7 +107,7 @@ const decodeCheckoutItems = (encodedItems: string | null): CheckoutLinkItem[] =>
 
 const renderCheckoutLinksPage = (request: Request) => {
   const url = new URL(request.url);
-  const items = decodeCheckoutItems(url.searchParams.get("items"));
+  const items = decodeCheckoutItems(url.searchParams.get("i") ?? url.searchParams.get("items"));
 
   if (!items.length) {
     return Response.redirect("https://shop.nhl.com/cart", 302);
@@ -78,7 +116,7 @@ const renderCheckoutLinksPage = (request: Request) => {
   const itemCards = items.map((item, index) => {
     const productUrl = item.productUrl || item.categoryUrl || "https://shop.nhl.com";
     return `
-      <article class="item">
+      <article class="item${item.image ? "" : " item--text-only"}">
         ${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}">` : ""}
         <div class="item-copy">
           <p class="eyebrow">Item ${index + 1}</p>
@@ -161,6 +199,9 @@ const renderCheckoutLinksPage = (request: Request) => {
       height: 132px;
       object-fit: contain;
     }
+    .item--text-only {
+      grid-template-columns: minmax(0, 1fr);
+    }
     .eyebrow {
       margin: 0 0 6px;
       color: #d71920;
@@ -239,7 +280,7 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname === "/checkout-links") {
+    if (url.pathname === "/checkout-links" || url.pathname === "/c") {
       return renderCheckoutLinksPage(request);
     }
 

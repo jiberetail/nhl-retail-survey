@@ -35,13 +35,24 @@ const getItemSize = (item: CartItem) => {
 
 const encodeCheckoutPayload = (cartItems: CartItem[]) => {
   const payload = JSON.stringify(
-    cartItems.slice(0, 5).map((item) => ({
-      name: item.name,
-      image: item.image,
-      size: getItemSize(item),
-      productUrl: item.productUrl,
-      categoryUrl: item.categoryUrl,
-    }))
+    cartItems
+      .slice(0, 5)
+      .map((item) => {
+        if (!item.productUrl) return null;
+
+        try {
+          const productUrl = new URL(item.productUrl);
+          if (productUrl.hostname !== "shop.nhl.com") return null;
+
+          return [
+            `${productUrl.pathname}${productUrl.search}`,
+            getItemSize(item) ?? "",
+          ];
+        } catch {
+          return null;
+        }
+      })
+      .filter((item): item is [string, string] => item !== null)
   );
   const bytes = new TextEncoder().encode(payload);
   let binary = "";
@@ -62,7 +73,7 @@ const buildNhlShopUrl = (cartItems: CartItem[]) => {
   if (productUrls.length === 1) return productUrls[0];
   if (typeof window === "undefined") return productUrls[0] ?? `${NHL_SHOP_URL}/cart`;
 
-  return `${window.location.origin}/checkout-links?items=${encodeCheckoutPayload(cartItems)}`;
+  return `${window.location.origin}/c?i=${encodeCheckoutPayload(cartItems)}`;
 };
 
 export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItems }: OnlineAvailableScreenProps) {
@@ -183,7 +194,7 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
                 <QRCodeSVG
                   value={nhlShopCartUrl}
                   size={238}
-                  level="H"
+                  level="L"
                   includeMargin={false}
                 />
               </div>
