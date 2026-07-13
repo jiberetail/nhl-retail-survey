@@ -35,7 +35,9 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
   const [itemSearch, setItemSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [pressedButton, setPressedButton] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const pressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -44,6 +46,24 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
       video.volume = 0;
     }
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (pressTimeoutRef.current) {
+        clearTimeout(pressTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const runAfterPress = (buttonId: string, action: () => void) => {
+    if (pressTimeoutRef.current) return;
+    setPressedButton(buttonId);
+    pressTimeoutRef.current = setTimeout(() => {
+      action();
+      setPressedButton(null);
+      pressTimeoutRef.current = null;
+    }, 180);
+  };
 
   const filteredItems = useMemo(() => {
     const query = itemSearch.trim().toLowerCase();
@@ -127,37 +147,40 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
     onClick: () => void;
     children: string;
     flex?: boolean;
-  }) => (
-    <motion.button
-      onClick={onClick}
-      className={`relative overflow-hidden rounded-xl font-black transition-all ${flex ? "flex-1" : "w-full"} ${
-        active ? "text-white" : "text-black"
-      }`}
-      style={{
-        fontSize: 38,
-        lineHeight: 1.15,
-        minHeight: 106,
-        padding: "26px 30px",
-        background: active ? activeBg : inactiveBg,
-        boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
-      }}
-      whileHover={{ scale: 1.015 }}
-      whileTap={{ scale: 0.97 }}
-    >
-      <div
-        className="absolute left-0 top-0 bottom-0"
-        style={{ width: 8, background: active ? "#fff" : "#1e40af" }}
-      />
-      {children}
-    </motion.button>
-  );
+  }) => {
+    const buttonId = `${step}:${children}`;
+    const isPressed = active || pressedButton === buttonId;
+
+    return (
+      <motion.button
+        onClick={() => runAfterPress(buttonId, onClick)}
+        className={`relative overflow-hidden rounded-xl font-black transition-all ${flex ? "flex-1" : "w-full"} ${
+          isPressed ? "text-white" : "text-black"
+        }`}
+        style={{
+          fontSize: 38,
+          lineHeight: 1.15,
+          minHeight: 106,
+          padding: "26px 30px",
+          background: isPressed ? activeBg : inactiveBg,
+          boxShadow: isPressed ? "0 18px 42px rgba(0,0,0,0.28)" : "0 12px 30px rgba(0,0,0,0.12)",
+        }}
+        whileHover={{ scale: 1.015 }}
+        whileTap={{ scale: 0.97 }}
+      >
+        <div
+          className="absolute left-0 top-0 bottom-0"
+          style={{ width: 8, background: isPressed ? "#fff" : "#1e40af" }}
+        />
+        {children}
+      </motion.button>
+    );
+  };
 
   const QuestionShell = ({
-    eyebrow,
     question,
     children,
   }: {
-    eyebrow: string;
     question: string;
     children: React.ReactNode;
   }) => (
@@ -169,12 +192,6 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
       transition={{ duration: 0.28 }}
       className="w-full"
     >
-      <p
-        className="font-black text-center uppercase tracking-widest"
-        style={{ color: "#cc0000", fontSize: 30, marginBottom: 24 }}
-      >
-        {eyebrow}
-      </p>
       <h2
         className="font-black text-black text-center"
         style={{ fontSize: 58, lineHeight: 1.04, marginBottom: 48 }}
@@ -220,7 +237,6 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
         <AnimatePresence mode="wait">
           {step === "found" && (
             <QuestionShell
-              eyebrow="Question 1"
               question="Did you find everything you were looking for in the store today?"
             >
               <div className="flex" style={{ gap: 18 }}>
@@ -235,7 +251,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
           )}
 
           {step === "missingItem" && (
-            <QuestionShell eyebrow="Question 2" question="Please tell us what you were looking for.">
+            <QuestionShell question="Please tell us what you were looking for.">
               <div className="relative" style={{ zIndex: 30 }}>
                 <Search
                   className="absolute text-gray-400"
@@ -322,7 +338,6 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
 
           {step === "experience" && (
             <QuestionShell
-              eyebrow={foundEverything === "no" ? "Question 3" : "Question 2"}
               question="Are you satisfied with your shopping experience?"
             >
               <div className="flex" style={{ gap: 18 }}>
@@ -338,7 +353,6 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
 
           {step === "affected" && (
             <QuestionShell
-              eyebrow={foundEverything === "no" ? "Question 4" : "Question 3"}
               question="What affected your shopping experience?"
             >
               <div className="flex flex-col" style={{ gap: 16 }}>
@@ -357,15 +371,6 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
 
           {step === "associate" && (
             <QuestionShell
-              eyebrow={
-                shoppingSatisfied === "no"
-                  ? foundEverything === "no"
-                    ? "Question 5"
-                    : "Question 4"
-                  : foundEverything === "no"
-                    ? "Question 4"
-                    : "Question 3"
-              }
               question="Did an associate assist you in the store today?"
             >
               <div className="flex" style={{ gap: 18 }}>
@@ -380,7 +385,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome }: PurchaseSurveyScree
           )}
 
           {step === "associateRating" && (
-            <QuestionShell eyebrow="Final Question" question="How satisfied are you with the associate?">
+            <QuestionShell question="How satisfied are you with the associate?">
               <div className="flex flex-col" style={{ gap: 16 }}>
                 {associateRatings.map((rating) => (
                   <OptionButton
