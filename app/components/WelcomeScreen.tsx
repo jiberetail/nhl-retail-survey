@@ -60,7 +60,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          ORDER IT HERE<br />SHIP IT HOME!
+          Order it Here<br />SHIP IT HOME!
         </motion.p>
 
         {/* Green button */}
