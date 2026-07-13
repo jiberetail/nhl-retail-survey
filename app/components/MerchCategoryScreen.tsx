@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Home, ArrowLeft } from "lucide-react";
-import logoSrc from "../../imports/NHL-Logo.png?url";
-import backgroundVideo from "../../imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
-import bruinsJerseyImg from "../../imports/0041_-_Men_s_Boston_Bruins_Charlie_McAvoy_Fanatics_Black_Home_Breakaway_Player_Jersey-1.jpg?url";
-import bruinsHatImg from "../../imports/0650_-_Men_s_Boston_Bruins__47_Black_Primary_Hitch_Snapback_Hat.jpg?url";
-import bruinsShirtImg from "../../imports/Image_6-3-26_at_7.07_PM.png?url";
-import bruinsAccessoriesImg from "../../imports/Image_6-3-26_at_7.08_PM.png?url";
-import ducksJerseyImg from "../../imports/0026_-_Men_s_Anaheim_Ducks_Lukas_Dostal_Fanatics_Orange_Home_Breakaway_Jersey-1.jpg?url";
-import ducksHatImg from "../../imports/0080_-_Men_s_Anaheim_Ducks_New_Era_Black_Active_Subtle_Camo_39THIRTY_Flex_Hat-1.jpg?url";
-import ducksShirtImg from "../../imports/Image_6-3-26_at_7.17_PM.png?url";
-import ducksAccessoriesImg from "../../imports/Image_6-3-26_at_7.18_PM.png?url";
-
+const logoSrc = "/imports/NHL-Logo.png";
+const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
+const bruinsJerseyImg = "/imports/0041_-_Men_s_Boston_Bruins_Charlie_McAvoy_Fanatics_Black_Home_Breakaway_Player_Jersey-1.jpg";
+const bruinsHatImg = "/imports/0650_-_Men_s_Boston_Bruins__47_Black_Primary_Hitch_Snapback_Hat.jpg";
+const bruinsShirtImg = "/imports/Image_6-3-26_at_7.07_PM.png";
+const bruinsAccessoriesImg = "/imports/Image_6-3-26_at_7.08_PM.png";
+const ducksJerseyImg = "/imports/0026_-_Men_s_Anaheim_Ducks_Lukas_Dostal_Fanatics_Orange_Home_Breakaway_Jersey-1.jpg";
+const ducksHatImg = "/imports/0080_-_Men_s_Anaheim_Ducks_New_Era_Black_Active_Subtle_Camo_39THIRTY_Flex_Hat-1.jpg";
+const ducksShirtImg = "/imports/Image_6-3-26_at_7.17_PM.png";
+const ducksAccessoriesImg = "/imports/Image_6-3-26_at_7.18_PM.png";
 interface MerchCategoryScreenProps {
   sport: string;
   teamName: string;

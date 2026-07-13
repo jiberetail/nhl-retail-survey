@@ -1,9 +1,8 @@
 import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Search, QrCode, Truck } from "lucide-react";
-import videoSrc from "../../imports/new_vid.mp4";
-import logoSrc from "../../imports/NHL-Logo.png?url";
-
+const videoSrc = "/imports/new_vid.mp4";
+const logoSrc = "/imports/NHL-Logo.png";
 interface WelcomeScreenProps {
   onStart: () => void;
 }

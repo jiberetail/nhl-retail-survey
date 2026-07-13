@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Home, Search } from "lucide-react";
-import logoSrc from "../../imports/NHL-Logo.png?url";
-import backgroundVideo from "../../imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
+const logoSrc = "/imports/NHL-Logo.png";
+const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 import { allInventoryItems, InventoryItem } from "../data/inventory";
 
 interface PurchaseSurveyScreenProps {

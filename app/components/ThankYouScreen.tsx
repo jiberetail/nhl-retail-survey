@@ -2,10 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
 import { useLanguage } from "../contexts/LanguageContext";
-import logoSrc from "../../imports/NHL-Logo.png?url";
-import backgroundVideo from "../../imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
-import introVideo from "../../imports/Video_Project_4__1_.mp4";
-
+const logoSrc = "/imports/NHL-Logo.png";
+const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
+const introVideo = "/imports/Video_Project_4__1_.mp4";
 interface ThankYouScreenProps {
   onReset: () => void;
 }
