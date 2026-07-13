@@ -1,17 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Home, ArrowLeft } from "lucide-react";
-import { findNhlTeamCatalog } from "../data/nhlCatalog";
+import { NHL_CATEGORY_ARTWORK } from "../data/nhlCategoryArtwork";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
-const bruinsJerseyImg = "/imports/0041_-_Men_s_Boston_Bruins_Charlie_McAvoy_Fanatics_Black_Home_Breakaway_Player_Jersey-1.jpg";
-const bruinsHatImg = "/imports/0650_-_Men_s_Boston_Bruins__47_Black_Primary_Hitch_Snapback_Hat.jpg";
-const bruinsShirtImg = "/imports/Image_6-3-26_at_7.07_PM.png";
-const bruinsAccessoriesImg = "/imports/Image_6-3-26_at_7.08_PM.png";
-const ducksJerseyImg = "/imports/0026_-_Men_s_Anaheim_Ducks_Lukas_Dostal_Fanatics_Orange_Home_Breakaway_Jersey-1.jpg";
-const ducksHatImg = "/imports/0080_-_Men_s_Anaheim_Ducks_New_Era_Black_Active_Subtle_Camo_39THIRTY_Flex_Hat-1.jpg";
-const ducksShirtImg = "/imports/Image_6-3-26_at_7.17_PM.png";
-const ducksAccessoriesImg = "/imports/Image_6-3-26_at_7.18_PM.png";
 interface MerchCategoryScreenProps {
   sport: string;
   teamName: string;
@@ -22,7 +14,7 @@ interface MerchCategoryScreenProps {
   onBackToTeams: () => void;
 }
 
-export function MerchCategoryScreen({ sport, teamName, teamLogo, onComplete, onHome, onBack, onBackToTeams }: MerchCategoryScreenProps) {
+export function MerchCategoryScreen({ teamName, onComplete, onHome, onBack, onBackToTeams }: MerchCategoryScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -38,28 +30,13 @@ export function MerchCategoryScreen({ sport, teamName, teamLogo, onComplete, onH
     onComplete(categoryId);
   };
 
-  const teamCategoryImages: Record<string, { jerseys?: string; hats?: string; shirts?: string; accessories?: string }> = {
-    "Boston Bruins": { jerseys: bruinsJerseyImg, hats: bruinsHatImg, shirts: bruinsShirtImg, accessories: bruinsAccessoriesImg },
-    "Anaheim Ducks": { jerseys: ducksJerseyImg, hats: ducksHatImg, shirts: ducksShirtImg, accessories: ducksAccessoriesImg },
-  };
-
-  const teamCatalog = findNhlTeamCatalog(teamName);
-  const imageOverrides = teamCategoryImages[teamName];
-  const getCatalogImage = (category: "jerseys" | "hats" | "shirts" | "accessories") =>
-    teamCatalog?.categories[category].find((product) => product.image)?.image ?? teamLogo ?? "";
-
-  const teamImages = {
-    jerseys: imageOverrides?.jerseys ?? getCatalogImage("jerseys"),
-    hats: imageOverrides?.hats ?? getCatalogImage("hats"),
-    shirts: imageOverrides?.shirts ?? getCatalogImage("shirts"),
-    accessories: imageOverrides?.accessories ?? getCatalogImage("accessories"),
-  };
+  const teamArtwork = NHL_CATEGORY_ARTWORK[teamName as keyof typeof NHL_CATEGORY_ARTWORK];
 
   const categories = [
-    { id: "jerseys", name: "Jerseys", image: teamImages.jerseys ?? "" },
-    { id: "hats", name: "Hats", image: teamImages.hats ?? "" },
-    { id: "shirts", name: "Shirts", image: teamImages.shirts ?? "" },
-    { id: "accessories", name: "Accessories", image: teamImages.accessories ?? "" },
+    { id: "jerseys", name: "Jerseys", artwork: teamArtwork?.jerseys },
+    { id: "hats", name: "Hats", artwork: teamArtwork?.hats },
+    { id: "shirts", name: "Shirts", artwork: teamArtwork?.shirts },
+    { id: "accessories", name: "Accessories", artwork: teamArtwork?.accessories },
   ];
 
   return (
@@ -102,11 +79,16 @@ export function MerchCategoryScreen({ sport, teamName, teamLogo, onComplete, onH
           </motion.h2>
           <div className="grid grid-cols-2" style={{ gap: 40 }}>
             {categories.map((category, index) => (
-              <motion.button key={category.id} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + index * 0.1, duration: 0.4 }} onClick={() => handleCategorySelect(category.id)} className="relative group" whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.05 }}>
-                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg" style={{ backgroundColor: "#ffffff" }}>
+              <motion.button key={category.id} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + index * 0.1, duration: 0.4 }} onClick={() => handleCategorySelect(category.id)} className="relative group" aria-label={`Shop ${teamName} ${category.name}`} whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.05 }}>
+                <div className="relative aspect-square">
                   <div className="absolute inset-0 p-8 flex items-center justify-center">
-                    {category.image ? (
-                      <img src={category.image} alt={category.name} className="w-full h-full object-contain" />
+                    {category.artwork?.image ? (
+                      <img
+                        src={category.artwork.image}
+                        alt={category.artwork.productName}
+                        className="w-full h-full object-contain"
+                        style={{ filter: "drop-shadow(0 14px 14px rgba(0, 0, 0, 0.24))" }}
+                      />
                     ) : (
                       <div className="font-black text-gray-300" style={{ fontSize: 80 }}>{category.name[0]}</div>
                     )}
