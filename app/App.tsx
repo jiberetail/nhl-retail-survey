@@ -22,15 +22,13 @@ type CartItem = {
   name: string;
   image: string;
   size?: string;
+  productUrl?: string;
+  productId?: string;
+  shopCategory?: string;
+  categoryUrl?: string;
   teamName?: string;
   category?: string;
   demographic?: string;
-};
-
-const getSelectedSize = (itemId: string) => {
-  const sizeMarker = "__size:";
-  const markerIndex = itemId.indexOf(sizeMarker);
-  return markerIndex >= 0 ? itemId.slice(markerIndex + sizeMarker.length) : undefined;
 };
 
 export default function App() {
@@ -58,9 +56,6 @@ export default function App() {
   const [selectedTeam, setSelectedTeam] = useState<{ id: string; name: string; logo: string | null }>({ id: "", name: "", logo: null });
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedDemographic, setSelectedDemographic] = useState<string>("");
-  const [selectedItemId, setSelectedItemId] = useState<string>("");
-  const [selectedItemName, setSelectedItemName] = useState<string>("");
-  const [selectedItemImage, setSelectedItemImage] = useState<string>("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const resetAll = () => {
@@ -142,17 +137,11 @@ export default function App() {
               teamLogo={selectedTeam.logo}
               category={selectedCategory}
               demographic={selectedDemographic}
-              onAddToCart={(itemId, itemName, itemImage) => {
-                setSelectedItemId(itemId);
-                setSelectedItemName(itemName);
-                setSelectedItemImage(itemImage);
+              onAddToCart={(item) => {
                 setCartItems(prev => [
                   ...prev,
                   {
-                    id: itemId,
-                    name: itemName,
-                    image: itemImage,
-                    size: getSelectedSize(itemId),
+                    ...item,
                     teamName: selectedTeam.name,
                     category: selectedCategory,
                     demographic: selectedDemographic,

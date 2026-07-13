@@ -9,6 +9,10 @@ type CartItem = {
   name: string;
   image: string;
   size?: string;
+  productUrl?: string;
+  productId?: string;
+  shopCategory?: string;
+  categoryUrl?: string;
   teamName?: string;
   category?: string;
   demographic?: string;
@@ -29,22 +33,36 @@ const getItemSize = (item: CartItem) => {
   return markerIndex >= 0 ? item.id.slice(markerIndex + sizeMarker.length) : undefined;
 };
 
+const encodeCheckoutPayload = (cartItems: CartItem[]) => {
+  const payload = JSON.stringify(
+    cartItems.slice(0, 5).map((item) => ({
+      name: item.name,
+      image: item.image,
+      size: getItemSize(item),
+      productUrl: item.productUrl,
+      categoryUrl: item.categoryUrl,
+    }))
+  );
+  const bytes = new TextEncoder().encode(payload);
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+};
+
 const buildNhlShopUrl = (cartItems: CartItem[]) => {
   if (!cartItems.length) return `${NHL_SHOP_URL}/cart`;
 
-  const uniqueSearchTerms = Array.from(
-    new Set(
-      cartItems.slice(0, 5).map(item => {
-        const searchParts = [item.teamName, item.name].filter(Boolean);
-        return searchParts.join(" ").replace(/\s+/g, " ").trim();
-      }).filter(Boolean)
-    )
-  );
+  const productUrls = cartItems
+    .map((item) => item.productUrl)
+    .filter((url): url is string => Boolean(url));
 
-  const query = uniqueSearchTerms.join(" ");
-  if (!query) return `${NHL_SHOP_URL}/cart`;
+  if (productUrls.length === 1) return productUrls[0];
+  if (typeof window === "undefined") return productUrls[0] ?? `${NHL_SHOP_URL}/cart`;
 
-  return `${NHL_SHOP_URL}/search?query=${encodeURIComponent(query)}`;
+  return `${window.location.origin}/checkout-links?items=${encodeCheckoutPayload(cartItems)}`;
 };
 
 export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItems }: OnlineAvailableScreenProps) {
@@ -175,7 +193,7 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
                     <ScanLine className="text-white" size={32} strokeWidth={3} />
                   </span>
                   <p className="font-black uppercase text-white/80 tracking-normal" style={{ fontSize: 28 }}>
-                    NHL Shop checkout link
+                    NHL Shop product links
                   </p>
                 </div>
                 <p className="font-black uppercase text-white leading-none" style={{ fontSize: 54 }}>
@@ -186,7 +204,7 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
                 </p>
                 <div className="inline-flex items-center rounded-full bg-white text-black" style={{ gap: 10, marginTop: 18, padding: "12px 18px" }}>
                   <ShoppingCart size={28} strokeWidth={3} />
-                  <span className="font-black uppercase" style={{ fontSize: 24 }}>Selected items included</span>
+                  <span className="font-black uppercase" style={{ fontSize: 24 }}>NHL links included</span>
                   <ExternalLink size={24} strokeWidth={3} />
                 </div>
               </div>
