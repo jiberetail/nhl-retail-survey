@@ -80,7 +80,7 @@ export function MerchCategoryScreen({ teamName, onComplete, onHome, onBack, onBa
           <div className="grid grid-cols-2" style={{ gap: 40 }}>
             {categories.map((category, index) => (
               <motion.button key={category.id} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + index * 0.1, duration: 0.4 }} onClick={() => handleCategorySelect(category.id)} className="relative group" aria-label={`Shop ${teamName} ${category.name}`} whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.05 }}>
-                <div className="relative aspect-square">
+                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg" style={{ backgroundColor: "#ffffff" }}>
                   <div className="absolute inset-0 p-8 flex items-center justify-center">
                     {category.artwork?.image ? (
                       <img
