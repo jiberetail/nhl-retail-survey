@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Home, Search } from "lucide-react";
+import { ArrowLeft, Home, Search } from "lucide-react";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 import { allInventoryItems, InventoryItem } from "../data/inventory";
@@ -245,9 +245,10 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
     <motion.button
       onClick={onClick}
       disabled={disabled}
-      className={`flex-1 rounded-xl font-black transition-all ${primary && !disabled ? "text-white" : "text-black"}`}
+      className={`rounded-xl font-black transition-all ${primary && !disabled ? "text-white" : "text-black"}`}
       style={{
         fontSize: 40,
+        width: 540,
         minHeight: 100,
         padding: "26px 30px",
         background: disabled ? "#d1d5db" : primary ? activeBg : inactiveBg,
@@ -493,28 +494,39 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
           key={`nav-${step}`}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex"
-          style={{ gap: 18, marginTop: 56 }}
+          className="flex justify-center"
+          style={{ marginTop: 56 }}
         >
-          <NavButton onClick={goBack}>Back</NavButton>
           <NavButton onClick={goForward} primary disabled={!canContinue}>
             Continue
           </NavButton>
         </motion.div>
       </div>
 
-      <div className="absolute left-1/2 -translate-x-1/2 z-30" style={{ bottom: 32 }}>
+      <div className="absolute left-1/2 -translate-x-1/2 z-30 flex" style={{ bottom: 36, gap: 24 }}>
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          onClick={goBack}
+          className="bg-white border-2 border-blue-300 rounded-full hover:bg-blue-50 transition-all shadow-lg"
+          style={{ padding: 28 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <ArrowLeft style={{ width: 48, height: 48 }} className="text-black" />
+        </motion.button>
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
           onClick={onHome}
           className="bg-white border-2 border-blue-300 rounded-full hover:bg-blue-50 transition-all shadow-lg"
-          style={{ padding: 24 }}
+          style={{ padding: 28 }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          <Home style={{ width: 40, height: 40 }} className="text-black" />
+          <Home style={{ width: 48, height: 48 }} className="text-black" />
         </motion.button>
       </div>
     </div>
