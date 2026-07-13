@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Home, ArrowLeft, ChevronRight } from "lucide-react";
+import { Home, ArrowLeft } from "lucide-react";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 const bruinsLogo = "/imports/Boston-Bruins-Logo-1.png";
@@ -88,10 +88,6 @@ export function AllTeamsScreen({ onComplete, onHome, onBack }: AllTeamsScreenPro
     }
   }, []);
 
-  const handleTeamSelect = (teamId: string) => {
-    setSelectedTeam(teamId);
-  };
-
   const handleContinue = () => {
     const team = allTeams.find(t => t.id === selectedTeam);
     if (team) onComplete(team);
@@ -130,12 +126,15 @@ export function AllTeamsScreen({ onComplete, onHome, onBack }: AllTeamsScreenPro
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="font-black text-black text-center flex-shrink-0"
-          style={{ fontSize: 64, marginBottom: 20 }}
+          style={{ fontSize: 64, marginBottom: 16 }}
         >
           SELECT YOUR TEAM
         </motion.h2>
 
-        <div className="flex-1 grid grid-cols-5" style={{ gap: 14, alignContent: "stretch" }}>
+        <div
+          className="flex-1 min-h-0 grid grid-cols-5"
+          style={{ gap: 12, gridTemplateRows: "repeat(7, minmax(0, 1fr))" }}
+        >
           {allTeams.map((team, index) => {
             const isSelected = selectedTeam === team.id;
             const isDimmed = selectedTeam && !isSelected;
@@ -148,12 +147,15 @@ export function AllTeamsScreen({ onComplete, onHome, onBack }: AllTeamsScreenPro
                 onClick={() => setSelectedTeam(isSelected ? null : team.id)}
                 whileTap={{ scale: 0.95 }}
                 whileHover={{ scale: 1.05 }}
-                className="flex flex-col items-center"
-                style={{ gap: 8 }}
+                className="flex h-full min-h-0 flex-col items-center justify-start"
+                style={{ gap: 6 }}
               >
                 <div
-                  className="relative rounded-lg bg-white shadow-md flex items-center justify-center w-full flex-1"
+                  className="relative rounded-lg bg-white shadow-md flex items-center justify-center w-full flex-shrink-0 overflow-hidden"
                   style={{
+                    height: 112,
+                    minHeight: 112,
+                    maxHeight: 112,
                     boxShadow: isSelected
                       ? "0 0 24px rgba(239,68,68,0.7), 0 4px 10px rgba(0,0,0,0.2)"
                       : "0 3px 6px rgba(0,0,0,0.15)",
@@ -177,34 +179,45 @@ export function AllTeamsScreen({ onComplete, onHome, onBack }: AllTeamsScreenPro
                     />
                   )}
                 </div>
-                <span className="text-center font-semibold leading-tight flex-shrink-0" style={{ fontSize: team.name.length > 18 ? 14 : 20, color: "#111" }}>
+                <span
+                  className="text-center font-semibold flex-shrink-0"
+                  style={{
+                    alignItems: "center",
+                    color: "#111",
+                    display: "flex",
+                    fontSize: team.name.length > 20 ? 13 : team.name.length > 16 ? 15 : 18,
+                    height: 42,
+                    justifyContent: "center",
+                    lineHeight: 1.08,
+                    overflow: "hidden",
+                    width: "100%",
+                  }}
+                >
                   {team.name}
                 </span>
               </motion.button>
             );
           })}
+        </div>
 
+        <div className="flex-shrink-0 flex items-center justify-center" style={{ height: 118, paddingTop: 18 }}>
           {selectedTeam && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
+            <motion.button
+              initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className="col-span-2 flex items-center justify-center"
+              transition={{ duration: 0.2 }}
+              onClick={handleContinue}
+              className="text-white font-black uppercase tracking-wider shadow-2xl"
+              style={{
+                paddingLeft: 58, paddingRight: 58, paddingTop: 24, paddingBottom: 24,
+                borderRadius: 9999, fontSize: 36,
+                background: "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)",
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <motion.button
-                onClick={handleContinue}
-                className="text-white font-black uppercase tracking-wider shadow-2xl"
-                style={{
-                  paddingLeft: 60, paddingRight: 60, paddingTop: 28, paddingBottom: 28,
-                  borderRadius: 9999, fontSize: 40,
-                  background: "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)",
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Continue
-              </motion.button>
-            </motion.div>
+              Continue
+            </motion.button>
           )}
         </div>
       </div>
