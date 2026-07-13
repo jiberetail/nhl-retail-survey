@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, Home, Search } from "lucide-react";
+import { ArrowLeft, CircleHelp, Clock, Home, Search, UserX } from "lucide-react";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 import { allInventoryItems, InventoryItem } from "../data/inventory";
@@ -18,10 +18,10 @@ const activeBg = "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)
 const inactiveBg = "rgba(255,255,255,0.88)";
 
 const affectedReasons = [
-  "Check out time was too long",
-  "Could not find my item",
-  "The associate was not friendly",
-  "I needed help and did not receive it.",
+  { label: "Check out time was too long", Icon: Clock },
+  { label: "Could not find my item", Icon: Search },
+  { label: "The associate was not friendly", Icon: UserX },
+  { label: "I needed help and did not receive it.", Icon: CircleHelp },
 ];
 
 const associateRatings = ["Satisfied", "Neutral", "Dissatisfied"];
@@ -195,11 +195,13 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
     active,
     onClick,
     children,
+    icon,
     flex = false,
   }: {
     active: boolean;
     onClick: () => void;
     children: string;
+    icon?: React.ReactNode;
     flex?: boolean;
   }) => {
     const buttonId = `${step}:${children}`;
@@ -217,16 +219,21 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
           minHeight: 106,
           padding: "26px 30px",
           background: isPressed ? activeBg : inactiveBg,
-          boxShadow: isPressed ? "0 18px 42px rgba(0,0,0,0.28)" : "0 12px 30px rgba(0,0,0,0.12)",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.16)",
         }}
-        whileHover={{ scale: 1.015 }}
-        whileTap={{ scale: 0.97 }}
+        animate={{ background: isPressed ? activeBg : inactiveBg }}
+        transition={{ duration: 0.18, ease: "easeOut" }}
+        whileHover={{ scale: 1.004 }}
+        whileTap={{ scale: 0.992 }}
       >
         <div
           className="absolute left-0 top-0 bottom-0"
           style={{ width: 8, background: isPressed ? "#fff" : "#1e40af" }}
         />
-        {children}
+        <span className="relative z-10 flex items-center justify-center" style={{ gap: 18 }}>
+          {icon && <span className="flex items-center justify-center flex-shrink-0">{icon}</span>}
+          <span>{children}</span>
+        </span>
       </motion.button>
     );
   };
@@ -257,8 +264,9 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
         boxShadow: disabled ? "none" : "0 12px 30px rgba(0,0,0,0.14)",
         cursor: disabled ? "not-allowed" : "pointer",
       }}
-      whileHover={!disabled ? { scale: 1.015 } : {}}
-      whileTap={!disabled ? { scale: 0.97 } : {}}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+      whileHover={!disabled ? { scale: 1.004 } : {}}
+      whileTap={!disabled ? { scale: 0.992 } : {}}
     >
       {children}
     </motion.button>
@@ -273,10 +281,10 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
   }) => (
     <motion.div
       key={step}
-      initial={{ opacity: 0, y: 18 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.28 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
       className="w-full"
     >
       <h2
@@ -447,13 +455,14 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
           {step === "affected" && (
             <QuestionShell question="What affected your shopping experience?">
               <div className="flex flex-col" style={{ gap: 16 }}>
-                {affectedReasons.map((reason) => (
+                {affectedReasons.map(({ label, Icon }) => (
                   <OptionButton
-                    key={reason}
-                    active={affectedReason === reason}
-                    onClick={() => selectAffectedReason(reason)}
+                    key={label}
+                    active={affectedReason === label}
+                    onClick={() => selectAffectedReason(label)}
+                    icon={<Icon style={{ width: 42, height: 42 }} strokeWidth={2.4} />}
                   >
-                    {reason}
+                    {label}
                   </OptionButton>
                 ))}
               </div>

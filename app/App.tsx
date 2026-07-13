@@ -147,20 +147,20 @@ export default function App() {
           {currentScreen === "onlineavailable" && (
             <OnlineAvailableScreen
               cartItems={cartItems}
-              onComplete={() => setCurrentScreen("emailcapture")}
+              onComplete={() => setCurrentScreen("purchasesurvey")}
               onContinueShopping={() => setCurrentScreen("merch")}
             />
           )}
           {currentScreen === "emailcapture" && (
             <EmailCaptureScreen
-              onContinue={() => setCurrentScreen("purchasesurvey")}
+              onContinue={() => setCurrentScreen("complete")}
               onHome={resetAll}
             />
           )}
           {currentScreen === "purchasesurvey" && (
             <PurchaseSurveyScreen
-              onComplete={() => setCurrentScreen("complete")}
-              onBack={() => setCurrentScreen("emailcapture")}
+              onComplete={() => setCurrentScreen("emailcapture")}
+              onBack={() => setCurrentScreen("onlineavailable")}
               onHome={resetAll}
             />
           )}
