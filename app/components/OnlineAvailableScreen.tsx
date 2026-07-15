@@ -59,6 +59,7 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
     () => cartItems.reduce((total, item) => total + item.price, 0),
     [cartItems],
   );
+  const isSingleItem = cartItems.length === 1;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -122,27 +123,46 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="flex-1 overflow-y-auto"
+          className="flex-1 overflow-y-auto flex flex-col"
           style={{ marginBottom: 32, minHeight: 0 }}
         >
-          <div className="flex flex-col" style={{ gap: cartItems.length === 1 ? 0 : 20 }}>
+          <div
+            className={`grid grid-cols-2 w-full ${cartItems.length <= 2 ? "my-auto" : ""}`}
+            style={{ gap: 20 }}
+          >
             {cartItems.map((item, i) => {
-              const imgSize = cartItems.length === 1 ? 500 : cartItems.length === 2 ? 260 : 160;
-              const fontSize = cartItems.length === 1 ? 40 : cartItems.length === 2 ? 34 : 28;
-              const padding = cartItems.length === 1 ? "32px 40px" : "20px 32px";
+              const imgSize = isSingleItem ? 300 : 175;
+              const fontSize = isSingleItem ? 32 : 24;
+              const padding = isSingleItem ? "24px 32px" : "18px 20px";
+              const cardHeight = isSingleItem ? 500 : 420;
               const itemSize = getItemSize(item);
               return (
-                <div key={i} className="flex flex-col items-center bg-white rounded-2xl shadow-lg" style={{ padding }}>
+                <div
+                  key={`${item.id}-${i}`}
+                  className={`flex flex-col items-center bg-white rounded-2xl shadow-lg ${isSingleItem ? "col-span-2" : ""}`}
+                  style={{ padding, height: cardHeight }}
+                >
                   {item.image && (
                     <img src={item.image} alt={item.name} className="object-contain" style={{ width: imgSize, height: imgSize }} />
                   )}
-                  <p className="font-black text-black leading-tight text-center" style={{ fontSize, marginTop: 16 }}>{item.name}</p>
+                  <p
+                    className="font-black text-black leading-tight text-center overflow-hidden"
+                    style={{
+                      fontSize,
+                      marginTop: 12,
+                      display: "-webkit-box",
+                      WebkitLineClamp: isSingleItem ? 3 : 4,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    {item.name}
+                  </p>
                   {itemSize && (
-                    <p className="font-bold text-black/50 text-center" style={{ fontSize: Math.max(24, fontSize - 8), marginTop: 8 }}>
+                    <p className="font-bold text-black/50 text-center" style={{ fontSize: isSingleItem ? 26 : 22, marginTop: 6 }}>
                       Size {itemSize}
                     </p>
                   )}
-                  <p className="font-black text-black text-center" style={{ fontSize: Math.max(30, fontSize - 2), marginTop: 12 }}>
+                  <p className="font-black text-black text-center" style={{ fontSize: isSingleItem ? 36 : 30, marginTop: 10 }}>
                     {formatPrice(item.price)}
                   </p>
                 </div>
