@@ -71,6 +71,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           style={{
             background: "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)",
             borderRadius: 10,
+            width: 720,
             paddingTop: 28,
             paddingBottom: 28,
             paddingLeft: 96,
@@ -85,7 +86,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           whileTap={{ scale: 0.97 }}
         >
           <span className="font-black text-white uppercase" style={{ fontSize: 48, letterSpacing: 0 }}>
-            Start
+            Get Started
           </span>
         </motion.button>
 
