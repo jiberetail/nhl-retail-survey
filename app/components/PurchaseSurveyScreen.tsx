@@ -1,10 +1,9 @@
-import { useMemo, useRef, useState, useEffect, type ReactNode } from "react";
+import { useRef, useState, useEffect, type ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CircleHelp, Clock, Search, UserX, X } from "lucide-react";
+import { CircleHelp, Clock, Search, UserX } from "lucide-react";
 import { SurveyNavigation } from "./SurveyNavigation";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
-import { allInventoryItems, InventoryItem } from "../data/inventory";
 
 interface PurchaseSurveyScreenProps {
   onComplete: () => void;
@@ -12,8 +11,9 @@ interface PurchaseSurveyScreenProps {
   onBack: () => void;
 }
 
-type SurveyStep = "found" | "missingItem" | "experience" | "affected" | "associate" | "associateRating";
+type SurveyStep = "purchaseReason" | "experience" | "affected" | "associate" | "associateRating";
 type YesNo = "yes" | "no";
+type PurchaseReason = "notFoundInStore" | "didNotWantToCarry";
 
 const activeBg = "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)";
 const inactiveBg = "rgba(255,255,255,0.88)";
@@ -65,10 +65,6 @@ const associateRatingTones: Record<string, OptionTone> = {
   Neutral: "neutral",
   Dissatisfied: "red",
 };
-
-const maxMissingItems = 5;
-
-const getItemKey = (item: InventoryItem) => `${item.team}::${item.category}::${item.name}`;
 
 function OptionButton({
   active,
@@ -172,15 +168,12 @@ function QuestionShell({ question, children }: { question: string; children: Rea
 }
 
 export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSurveyScreenProps) {
-  const [step, setStep] = useState<SurveyStep>("found");
-  const [foundEverything, setFoundEverything] = useState<YesNo | null>(null);
+  const [step, setStep] = useState<SurveyStep>("purchaseReason");
+  const [purchaseReason, setPurchaseReason] = useState<PurchaseReason | null>(null);
   const [shoppingSatisfied, setShoppingSatisfied] = useState<YesNo | null>(null);
   const [affectedReason, setAffectedReason] = useState("");
   const [associateAssisted, setAssociateAssisted] = useState<YesNo | null>(null);
   const [associateRating, setAssociateRating] = useState("");
-  const [itemSearch, setItemSearch] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<InventoryItem[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -191,63 +184,12 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
     }
   }, []);
 
-  const filteredItems = useMemo(() => {
-    const query = itemSearch.trim().toLowerCase();
-    if (!query) return [];
-
-    return allInventoryItems
-      .filter((item) => {
-        const matchesQuery =
-          item.name.toLowerCase().includes(query) ||
-          item.category.toLowerCase().includes(query) ||
-          item.team.toLowerCase().includes(query);
-        const isSelected = selectedItems.some((selected) => getItemKey(selected) === getItemKey(item));
-        return matchesQuery && !isSelected;
-      })
-      .slice(0, 8);
-  }, [itemSearch, selectedItems]);
-
-  const canAddMissingItem = selectedItems.length < maxMissingItems;
-
-  const selectFoundEverything = (answer: YesNo) => {
-    setFoundEverything(answer);
+  const selectPurchaseReason = (reason: PurchaseReason) => {
+    setPurchaseReason(reason);
     setShoppingSatisfied(null);
     setAffectedReason("");
     setAssociateAssisted(null);
     setAssociateRating("");
-    setSelectedItems([]);
-    setItemSearch("");
-    setShowDropdown(false);
-  };
-
-  const selectMissingItem = (item: InventoryItem) => {
-    setSelectedItems((currentItems) => {
-      if (currentItems.some((selected) => getItemKey(selected) === getItemKey(item))) {
-        return currentItems;
-      }
-      if (currentItems.length >= maxMissingItems) {
-        return currentItems;
-      }
-      return [...currentItems, item];
-    });
-    setItemSearch("");
-    setShowDropdown(false);
-    setShoppingSatisfied(null);
-    setAffectedReason("");
-    setAssociateAssisted(null);
-    setAssociateRating("");
-  };
-
-  const useTypedItem = () => {
-    const name = itemSearch.trim();
-    if (!name) return;
-    selectMissingItem({ name, category: "Requested item", team: "NHL Shop", image: "" });
-  };
-
-  const removeMissingItem = (item: InventoryItem) => {
-    setSelectedItems((currentItems) =>
-      currentItems.filter((selected) => getItemKey(selected) !== getItemKey(item))
-    );
   };
 
   const selectShoppingSatisfied = (answer: YesNo) => {
@@ -273,24 +215,19 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
   };
 
   const canContinue =
-    (step === "found" && foundEverything !== null) ||
-    (step === "missingItem" && selectedItems.length > 0) ||
+    (step === "purchaseReason" && purchaseReason !== null) ||
     (step === "experience" && shoppingSatisfied !== null) ||
     (step === "affected" && affectedReason !== "") ||
     (step === "associate" && associateAssisted !== null) ||
     (step === "associateRating" && associateRating !== "");
 
   const goBack = () => {
-    if (step === "found") {
+    if (step === "purchaseReason") {
       onBack();
       return;
     }
-    if (step === "missingItem") {
-      setStep("found");
-      return;
-    }
     if (step === "experience") {
-      setStep(foundEverything === "no" ? "missingItem" : "found");
+      setStep("purchaseReason");
       return;
     }
     if (step === "affected") {
@@ -306,11 +243,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
 
   const goForward = () => {
     if (!canContinue) return;
-    if (step === "found") {
-      setStep(foundEverything === "no" ? "missingItem" : "experience");
-      return;
-    }
-    if (step === "missingItem") {
+    if (step === "purchaseReason") {
       setStep("experience");
       return;
     }
@@ -366,154 +299,25 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
         style={{ paddingTop: 250, paddingBottom: 132, paddingLeft: 64, paddingRight: 64 }}
       >
         <AnimatePresence mode="wait">
-          {step === "found" && (
-            <QuestionShell key="found" question="Did you find everything you were looking for in the store today?">
-              <div className="flex" style={{ gap: 18 }}>
-                <OptionButton active={foundEverything === "yes"} onClick={() => selectFoundEverything("yes")} flex>
-                  Yes
-                </OptionButton>
-                <OptionButton active={foundEverything === "no"} onClick={() => selectFoundEverything("no")} flex>
-                  No
-                </OptionButton>
-              </div>
-            </QuestionShell>
-          )}
-
-          {step === "missingItem" && (
-            <QuestionShell key="missingItem" question="Please tell us what you were looking for.">
-              <div className="relative" style={{ zIndex: 30 }}>
-                <Search
-                  className="absolute text-gray-400"
-                  style={{ width: 44, height: 44, left: 28, top: 44 }}
-                />
-                <input
-                  type="text"
-                  value={itemSearch}
-                  onChange={(e) => {
-                    if (!canAddMissingItem) return;
-                    setItemSearch(e.target.value);
-                    setShowDropdown(true);
-                  }}
-                  onFocus={() => setShowDropdown(canAddMissingItem)}
-                  placeholder={canAddMissingItem ? "Search jerseys, hats, accessories..." : "5 items added"}
-                  disabled={!canAddMissingItem}
-                  className="w-full rounded-xl border-2 border-gray-300 bg-white text-black focus:outline-none focus:border-black"
-                  style={{
-                    fontSize: 40,
-                    padding: "32px 32px 32px 88px",
-                    opacity: canAddMissingItem ? 1 : 0.72,
-                  }}
-                />
-
-                {showDropdown && canAddMissingItem && itemSearch.trim() && (
-                  <div
-                    className="absolute left-0 right-0 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-y-auto"
-                    style={{ top: "calc(100% + 8px)", maxHeight: 500 }}
-                  >
-                    {filteredItems.map((item) => (
-                      <button
-                        key={`${item.team}-${item.category}-${item.name}`}
-                        onClick={() => selectMissingItem(item)}
-                        className="w-full text-left hover:bg-gray-50 transition-all"
-                        style={{ padding: "18px 24px", borderBottom: "1px solid #f3f4f6" }}
-                      >
-                        <div className="flex items-center" style={{ gap: 22 }}>
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="object-contain flex-shrink-0"
-                            style={{ width: 92, height: 92 }}
-                          />
-                          <div>
-                            <p className="font-black text-black" style={{ fontSize: 32, lineHeight: 1.18 }}>
-                              {item.name}
-                            </p>
-                            <p className="text-black/50" style={{ fontSize: 26, marginTop: 4 }}>
-                              {item.team} - {item.category}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-
-                    <button
-                      onClick={useTypedItem}
-                      className="w-full text-left hover:bg-gray-50 transition-all"
-                      style={{ padding: "22px 28px" }}
-                    >
-                      <p className="font-black text-black" style={{ fontSize: 32 }}>
-                        Use "{itemSearch.trim()}"
-                      </p>
-                      <p className="text-black/50" style={{ fontSize: 26, marginTop: 4 }}>
-                        Continue with this item
-                      </p>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {selectedItems.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-xl shadow-lg"
-                  style={{ marginTop: 26, padding: "18px 20px" }}
+          {step === "purchaseReason" && (
+            <QuestionShell
+              key="purchaseReason"
+              question="Thank you for your recent purchase. Why did you decide to purchase online?"
+            >
+              <div className="flex flex-col" style={{ gap: 18 }}>
+                <OptionButton
+                  active={purchaseReason === "notFoundInStore"}
+                  onClick={() => selectPurchaseReason("notFoundInStore")}
                 >
-                  <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
-                    <p className="font-black text-black" style={{ fontSize: 28 }}>
-                      Items added
-                    </p>
-                    <p className="font-black text-black/45" style={{ fontSize: 26 }}>
-                      {selectedItems.length}/{maxMissingItems}
-                    </p>
-                  </div>
-                  <div className="flex flex-col" style={{ gap: 12 }}>
-                    {selectedItems.map((item) => (
-                      <div
-                        key={getItemKey(item)}
-                        className="flex items-center rounded-lg"
-                        style={{
-                          gap: 18,
-                          padding: "12px 12px 12px 16px",
-                          background: "rgba(243,244,246,0.92)",
-                          border: "1px solid rgba(156,163,175,0.45)",
-                        }}
-                      >
-                        {item.image && (
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="object-contain flex-shrink-0"
-                            style={{ width: 74, height: 74 }}
-                          />
-                        )}
-                        <div className="min-w-0" style={{ flex: 1 }}>
-                          <p className="font-black text-black truncate" style={{ fontSize: 28, lineHeight: 1.12 }}>
-                            {item.name}
-                          </p>
-                          <p className="text-black/50 truncate" style={{ fontSize: 22, marginTop: 2 }}>
-                            {item.team} - {item.category}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeMissingItem(item)}
-                          aria-label={`Remove ${item.name}`}
-                          className="flex items-center justify-center rounded-full bg-white shadow-sm"
-                          style={{
-                            width: 54,
-                            height: 54,
-                            border: "2px solid rgba(220,38,38,0.28)",
-                            flexShrink: 0,
-                          }}
-                        >
-                          <X style={{ width: 30, height: 30, color: "#dc2626" }} strokeWidth={3} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+                  I couldn&apos;t find my item in store.
+                </OptionButton>
+                <OptionButton
+                  active={purchaseReason === "didNotWantToCarry"}
+                  onClick={() => selectPurchaseReason("didNotWantToCarry")}
+                >
+                  I did not want to carry my item around.
+                </OptionButton>
+              </div>
             </QuestionShell>
           )}
 
