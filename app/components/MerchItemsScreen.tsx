@@ -231,13 +231,17 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
                   whileTap={{ scale: 0.95 }}
                   whileHover={{ scale: 1.02 }}
                 >
-                  <div className="relative rounded-xl overflow-hidden shadow-lg" style={{ backgroundColor: "#ffffff" }}>
-                    <div className="relative p-4" style={{ height: "500px" }}>
+                  <div
+                    className="relative rounded-xl overflow-hidden shadow-lg"
+                    style={{ backgroundColor: "#ffffff", height: "596px" }}
+                  >
+                    <div className="relative p-4 flex items-center justify-center" style={{ height: "476px" }}>
                       {item.image ? (
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-full h-full object-contain"
+                          className="object-contain"
+                          style={{ width: "92%", height: "92%" }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm font-bold">
@@ -245,16 +249,19 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
                         </div>
                       )}
                     </div>
-                    <div className="p-3 bg-white min-h-24 flex flex-col justify-between gap-2">
-                      <p className="text-sm font-black text-black text-center leading-tight">
+                    <div className="p-3 bg-white flex flex-col justify-between gap-2" style={{ height: "120px" }}>
+                      <p
+                        className="text-base font-black text-black text-center leading-tight overflow-hidden"
+                        style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}
+                      >
                         {item.name}
                       </p>
                       <div className="flex items-baseline justify-center gap-2">
-                        <span className="text-xl font-black text-black">
+                        <span className="text-2xl font-black text-black">
                           {formatPrice(item.price)}
                         </span>
                         {item.regularPrice > item.price && (
-                          <span className="text-sm font-bold text-gray-500 line-through">
+                          <span className="text-base font-bold text-gray-500 line-through">
                             {formatPrice(item.regularPrice)}
                           </span>
                         )}
