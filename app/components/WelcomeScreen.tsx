@@ -55,13 +55,13 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         {/* Headline */}
         <motion.p
           className="font-black text-white text-center leading-none"
-          style={{ fontSize: 141, letterSpacing: "-4px", lineHeight: 0.95, marginBottom: 48 }}
+          style={{ width: "100%", letterSpacing: 0, lineHeight: 0.95, marginBottom: 48 }}
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <span style={{ display: "block", whiteSpace: "nowrap", fontSize: 126, letterSpacing: "-3px" }}>ORDER IT HERE</span>
-          <span style={{ display: "block" }}>SHIP IT HOME!</span>
+          <span style={{ display: "block", whiteSpace: "nowrap", fontSize: 112, letterSpacing: 0 }}>ORDER IT HERE</span>
+          <span style={{ display: "block", whiteSpace: "nowrap", fontSize: 124, letterSpacing: 0 }}>SHIP IT HOME!</span>
         </motion.p>
 
         {/* Green button */}
