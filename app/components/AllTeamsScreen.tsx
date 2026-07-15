@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Home, ArrowLeft } from "lucide-react";
+import { SurveyNavigation } from "./SurveyNavigation";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 const bruinsLogo = "/imports/Boston-Bruins-Logo-1.png";
@@ -222,27 +222,7 @@ export function AllTeamsScreen({ onComplete, onHome, onBack }: AllTeamsScreenPro
         </div>
       </div>
 
-      {/* Nav buttons */}
-      <div className="absolute left-1/2 -translate-x-1/2 z-30 flex" style={{ bottom: 36, gap: 24 }}>
-        <motion.button
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-          onClick={onBack}
-          className="bg-white border-2 border-blue-300 rounded-full hover:bg-blue-50 transition-all shadow-lg"
-          style={{ padding: 28 }}
-          whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-        >
-          <ArrowLeft style={{ width: 48, height: 48 }} className="text-black" />
-        </motion.button>
-        <motion.button
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-          onClick={onHome}
-          className="bg-white border-2 border-blue-300 rounded-full hover:bg-blue-50 transition-all shadow-lg"
-          style={{ padding: 28 }}
-          whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-        >
-          <Home style={{ width: 48, height: 48 }} className="text-black" />
-        </motion.button>
-      </div>
+      <SurveyNavigation onBack={onBack} onHome={onHome} />
     </div>
   );
 }

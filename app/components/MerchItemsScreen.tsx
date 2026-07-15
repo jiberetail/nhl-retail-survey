@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Home, ArrowLeft, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { findNhlTeamCatalog, type NhlCatalogProduct } from "../data/nhlCatalog";
 import { getNhlProductPrice, type NhlProductPrice } from "../data/nhlPrices";
+import { SurveyNavigation } from "./SurveyNavigation";
 
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
@@ -413,31 +414,7 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
         </motion.div>
       )}
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-4">
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          onClick={onBack}
-          className="p-3 bg-white border-2 border-blue-300 rounded-full hover:bg-blue-50 transition-all shadow-lg"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <ArrowLeft className="w-5 h-5 text-black" />
-        </motion.button>
-
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          onClick={onHome}
-          className="p-3 bg-white border-2 border-blue-300 rounded-full hover:bg-blue-50 transition-all shadow-lg"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <Home className="w-5 h-5 text-black" />
-        </motion.button>
-      </div>
+      <SurveyNavigation onBack={onBack} onHome={onHome} />
     </div>
   );
 }

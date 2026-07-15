@@ -2,6 +2,7 @@ import { useRef, useEffect, useMemo } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
 import { ScanLine } from "lucide-react";
+import { SurveyNavigation } from "./SurveyNavigation";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 type CartItem = {
@@ -24,6 +25,8 @@ type CartItem = {
 interface OnlineAvailableScreenProps {
   onComplete: () => void;
   onContinueShopping: () => void;
+  onBack: () => void;
+  onHome: () => void;
   cartItems: CartItem[];
 }
 
@@ -52,7 +55,7 @@ const buildNhlShopUrl = (cartItems: CartItem[]) => {
   }
 };
 
-export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItems }: OnlineAvailableScreenProps) {
+export function OnlineAvailableScreen({ onComplete, onContinueShopping, onBack, onHome, cartItems }: OnlineAvailableScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const nhlShopProductUrl = useMemo(() => buildNhlShopUrl(cartItems), [cartItems]);
   const cartTotal = useMemo(
@@ -83,6 +86,8 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
         <source src={backgroundVideo} type="video/mp4" />
       </video>
       <div className="absolute inset-0 bg-white/30" />
+
+      <SurveyNavigation onBack={onBack} onHome={onHome} />
 
       {/* NHL Logo */}
       <motion.div

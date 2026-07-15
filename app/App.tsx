@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react"; // v2
-import { Home } from "lucide-react";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { WelcomeScreen } from "./components/WelcomeScreen";
 import { LanguageLocationScreen } from "./components/LanguageLocationScreen";
@@ -168,6 +167,8 @@ export default function App() {
               cartItems={cartItems}
               onComplete={() => setCurrentScreen("purchasesurvey")}
               onContinueShopping={() => setCurrentScreen("merch")}
+              onBack={() => setCurrentScreen("items")}
+              onHome={resetAll}
             />
           )}
           {currentScreen === "emailcapture" && (
@@ -187,14 +188,6 @@ export default function App() {
             <ThankYouScreen onReset={resetAll} />
           )}
 
-          {/* Dev home button */}
-          <button
-            onClick={resetAll}
-            className="fixed bottom-4 left-4 z-50 p-3 bg-black/10 backdrop-blur-sm border border-black/30 rounded-full hover:bg-black/20 transition-all"
-            style={{ opacity: 0.6 }}
-          >
-            <Home className="w-4 h-4 text-black" />
-          </button>
         </div>
       </div>
     </LanguageProvider>

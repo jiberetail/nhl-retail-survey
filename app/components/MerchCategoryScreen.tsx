@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Home, ArrowLeft } from "lucide-react";
 import { NHL_CATEGORY_ARTWORK } from "../data/nhlCategoryArtwork";
+import { SurveyNavigation } from "./SurveyNavigation";
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
 interface MerchCategoryScreenProps {
@@ -103,16 +103,11 @@ export function MerchCategoryScreen({ teamName, onComplete, onHome, onBack, onBa
         </motion.div>
       </div>
 
-      {/* Navigation buttons */}
-      <div className="absolute left-1/2 -translate-x-1/2 z-30 flex items-center" style={{ bottom: 32, gap: 24 }}>
-        <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} onClick={onBack} className="bg-white border-2 border-blue-300 rounded-full hover:bg-blue-50 transition-all shadow-lg" style={{ padding: 20 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-          <ArrowLeft style={{ width: 32, height: 32 }} className="text-black" />
-        </motion.button>
+      <SurveyNavigation onBack={onBack} onHome={onHome} />
+
+      <div className="absolute left-1/2 -translate-x-1/2 z-30" style={{ bottom: 32 }}>
         <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} onClick={onBackToTeams} className="bg-white border-2 border-gray-300 rounded-full font-black text-black hover:bg-gray-50 transition-all shadow-lg" style={{ padding: "20px 36px", fontSize: 28 }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           Back to Team Selection
-        </motion.button>
-        <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} onClick={onHome} className="bg-white border-2 border-blue-300 rounded-full hover:bg-blue-50 transition-all shadow-lg" style={{ padding: 20 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-          <Home style={{ width: 32, height: 32 }} className="text-black" />
         </motion.button>
       </div>
     </div>
