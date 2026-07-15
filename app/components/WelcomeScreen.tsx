@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { Search, QrCode, Truck } from "lucide-react";
+import { Shirt, QrCode, Truck } from "lucide-react";
 const videoSrc = "/imports/new_vid.mp4";
 const logoSrc = "/imports/NHL-Logo.png";
 interface WelcomeScreenProps {
@@ -84,8 +84,8 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
         >
-          <span className="font-black text-white uppercase tracking-widest" style={{ fontSize: 48, letterSpacing: "0.12em" }}>
-            Find My Items
+          <span className="font-black text-white uppercase" style={{ fontSize: 48, letterSpacing: 0 }}>
+            Start
           </span>
         </motion.button>
 
@@ -98,7 +98,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         >
           <div className="flex flex-col" style={{ gap: 36 }}>
             {[
-              { Icon: Search, label: "Find the Item You Love" },
+              { Icon: Shirt, label: "Pick your items" },
               { Icon: QrCode, label: "Scan & Purchase" },
               { Icon: Truck,  label: "Get It Delivered" },
             ].map(({ Icon, label }, i) => (
