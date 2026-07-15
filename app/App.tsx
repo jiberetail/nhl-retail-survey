@@ -29,6 +29,9 @@ type CartItem = {
   teamName?: string;
   category?: string;
   demographic?: string;
+  price: number;
+  regularPrice?: number;
+  currency: "USD";
 };
 
 export default function App() {

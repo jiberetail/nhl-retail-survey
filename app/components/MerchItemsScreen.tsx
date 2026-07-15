@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { Home, ArrowLeft, Search } from "lucide-react";
 import { findNhlTeamCatalog, type NhlCatalogProduct } from "../data/nhlCatalog";
+import { getNhlProductPrice, type NhlProductPrice } from "../data/nhlPrices";
 
 const logoSrc = "/imports/NHL-Logo.png";
 const backgroundVideo = "/imports/grok-video-78e27f5f-b034-4dcd-9cb7-31c80a96f41b.mp4";
@@ -15,7 +16,12 @@ type CartItemInput = {
   productId?: string;
   shopCategory?: string;
   categoryUrl?: string;
+  price: number;
+  regularPrice?: number;
+  currency: "USD";
 };
+
+type PricedCatalogItem = NhlCatalogProduct & NhlProductPrice;
 
 interface MerchItemsScreenProps {
   teamName: string;
@@ -32,6 +38,8 @@ interface MerchItemsScreenProps {
 const isKidsItem = (name: string) => /(youth|kids|kid's|toddler|infant|preschool|boys|girls)/i.test(name);
 const isWomenItem = (name: string) => /(women|women's|womens|ladies|girls)/i.test(name);
 const isMenItem = (name: string) => /(men|men's|mens|unisex|adult)/i.test(name) && !isWomenItem(name) && !isKidsItem(name);
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price);
 
 const getFilteredCatalogItems = (teamName: string, category: string, demographic?: string) => {
   const teamCatalog = findNhlTeamCatalog(teamName);
@@ -55,7 +63,7 @@ const getFilteredCatalogItems = (teamName: string, category: string, demographic
 export function MerchItemsScreen({ teamName, category, demographic, onComplete, onAddToCart, onHome, onBack, onContinueShopping }: MerchItemsScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [pendingItem, setPendingItem] = useState<NhlCatalogProduct | null>(null);
+  const [pendingItem, setPendingItem] = useState<PricedCatalogItem | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [addToCartItem, setAddToCartItem] = useState<CartItemInput | null>(null);
   const [cartConfirmed, setCartConfirmed] = useState(false);
@@ -69,8 +77,12 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
   }, []);
 
   const { items, categoryUrl } = getFilteredCatalogItems(teamName, category, demographic);
-  const filteredItems = items.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const pricedItems = items.flatMap((item) => {
+    const productPrice = getNhlProductPrice(item.productId);
+    return productPrice ? [{ ...item, ...productPrice }] : [];
+  });
+  const filteredItems = pricedItems.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const needsSizeSelection = category === "jerseys" || category === "shirts";
@@ -82,7 +94,7 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
     : ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
   const sizes = category === "jerseys" ? jerseySizes : shirtSizes;
 
-  const toCartItem = (item: NhlCatalogProduct, size?: string): CartItemInput => ({
+  const toCartItem = (item: PricedCatalogItem, size?: string): CartItemInput => ({
     id: size ? `${item.id}__size:${size}` : item.id,
     name: item.name,
     image: item.image,
@@ -91,9 +103,12 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
     productId: item.productId,
     shopCategory: item.shopCategory,
     categoryUrl,
+    price: item.price,
+    regularPrice: item.regularPrice,
+    currency: item.currency,
   });
 
-  const handleItemSelect = (item: NhlCatalogProduct) => {
+  const handleItemSelect = (item: PricedCatalogItem) => {
     if (needsSizeSelection) {
       setPendingItem(item);
       return;
@@ -230,10 +245,20 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
                         </div>
                       )}
                     </div>
-                    <div className="p-3 bg-white">
+                    <div className="p-3 bg-white min-h-24 flex flex-col justify-between gap-2">
                       <p className="text-sm font-black text-black text-center leading-tight">
                         {item.name}
                       </p>
+                      <div className="flex items-baseline justify-center gap-2">
+                        <span className="text-xl font-black text-black">
+                          {formatPrice(item.price)}
+                        </span>
+                        {item.regularPrice > item.price && (
+                          <span className="text-sm font-bold text-gray-500 line-through">
+                            {formatPrice(item.regularPrice)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </motion.button>
@@ -264,6 +289,16 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
             <p className="font-black text-black text-center" style={{ fontSize: 36, marginBottom: 40 }}>
               {addToCartItem.name}
             </p>
+            <div className="flex items-baseline justify-center" style={{ gap: 14, marginTop: -20, marginBottom: 40 }}>
+              <span className="font-black text-black" style={{ fontSize: 42 }}>
+                {formatPrice(addToCartItem.price)}
+              </span>
+              {addToCartItem.regularPrice && addToCartItem.regularPrice > addToCartItem.price && (
+                <span className="font-bold text-black/45 line-through" style={{ fontSize: 28 }}>
+                  {formatPrice(addToCartItem.regularPrice)}
+                </span>
+              )}
+            </div>
             <motion.button
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               onClick={() => { onAddToCart(addToCartItem); setCartConfirmed(true); }}
@@ -334,6 +369,9 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
             <h3 className="text-2xl font-black text-black text-center mb-6 tracking-tight">
               SELECT YOUR SIZE
             </h3>
+            <p className="text-xl font-black text-black text-center mb-5">
+              {formatPrice(pendingItem.price)}
+            </p>
             <div className="grid grid-cols-3 gap-3">
               {sizes.map((size) => (
                 <motion.button

@@ -16,6 +16,9 @@ type CartItem = {
   teamName?: string;
   category?: string;
   demographic?: string;
+  price: number;
+  regularPrice?: number;
+  currency: "USD";
 };
 
 interface OnlineAvailableScreenProps {
@@ -25,6 +28,8 @@ interface OnlineAvailableScreenProps {
 }
 
 const NHL_SHOP_URL = "https://shop.nhl.com";
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price);
 
 const getItemSize = (item: CartItem) => {
   if (item.size) return item.size;
@@ -50,6 +55,10 @@ const buildNhlShopUrl = (cartItems: CartItem[]) => {
 export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItems }: OnlineAvailableScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const nhlShopProductUrl = useMemo(() => buildNhlShopUrl(cartItems), [cartItems]);
+  const cartTotal = useMemo(
+    () => cartItems.reduce((total, item) => total + item.price, 0),
+    [cartItems],
+  );
 
   useEffect(() => {
     const video = videoRef.current;
@@ -133,10 +142,24 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, cartItem
                       Size {itemSize}
                     </p>
                   )}
+                  <p className="font-black text-black text-center" style={{ fontSize: Math.max(30, fontSize - 2), marginTop: 12 }}>
+                    {formatPrice(item.price)}
+                  </p>
                 </div>
               );
             })}
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.45 }}
+          className="flex items-center justify-between bg-black text-white rounded-2xl flex-shrink-0"
+          style={{ padding: "24px 32px", marginBottom: 28 }}
+        >
+          <span className="font-black uppercase" style={{ fontSize: 34 }}>Total</span>
+          <span className="font-black" style={{ fontSize: 44 }}>{formatPrice(cartTotal)}</span>
         </motion.div>
 
         {/* QR code */}
