@@ -73,8 +73,8 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             borderRadius: 10,
             paddingTop: 28,
             paddingBottom: 28,
-            paddingLeft: 64,
-            paddingRight: 64,
+            paddingLeft: 96,
+            paddingRight: 96,
             marginBottom: 52,
             border: "3px solid #ffffff",
           }}
