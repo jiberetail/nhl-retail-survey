@@ -248,10 +248,22 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
       return;
     }
     if (step === "experience") {
-      setStep(shoppingSatisfied === "no" ? "affected" : "associate");
+      if (shoppingSatisfied === "no") {
+        setStep("affected");
+        return;
+      }
+      if (purchaseReason === "didNotWantToCarry") {
+        onComplete();
+        return;
+      }
+      setStep("associate");
       return;
     }
     if (step === "affected") {
+      if (purchaseReason === "didNotWantToCarry") {
+        onComplete();
+        return;
+      }
       setStep("associate");
       return;
     }
