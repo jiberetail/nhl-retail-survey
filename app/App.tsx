@@ -59,12 +59,14 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedDemographic, setSelectedDemographic] = useState<string>("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [submittedEmail, setSubmittedEmail] = useState("");
 
   const resetAll = () => {
     setCartItems([]);
     setSelectedTeam({ id: "", name: "", logo: null });
     setSelectedCategory("");
     setSelectedDemographic("");
+    setSubmittedEmail("");
     setCurrentScreen("welcome");
   };
 
@@ -173,7 +175,10 @@ export default function App() {
           )}
           {currentScreen === "emailcapture" && (
             <EmailCaptureScreen
-              onContinue={() => setCurrentScreen("complete")}
+              onContinue={(email) => {
+                setSubmittedEmail(email);
+                setCurrentScreen("complete");
+              }}
               onHome={resetAll}
             />
           )}
@@ -185,7 +190,7 @@ export default function App() {
             />
           )}
           {currentScreen === "complete" && (
-            <ThankYouScreen onReset={resetAll} />
+            <ThankYouScreen email={submittedEmail} onReset={resetAll} />
           )}
 
         </div>
