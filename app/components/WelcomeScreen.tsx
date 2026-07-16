@@ -52,6 +52,16 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
       {/* Bottom content block */}
       <div className="absolute left-0 right-0 bottom-0 flex flex-col" style={{ paddingLeft: 56, paddingRight: 56, paddingBottom: 100 }}>
 
+        <motion.p
+          className="font-black text-white text-center uppercase"
+          style={{ fontSize: 34, letterSpacing: 0, color: "rgba(255,255,255,0.82)", marginBottom: 18 }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.12 }}
+        >
+          CAN&apos;T FIND IT IN STORE?
+        </motion.p>
+
         {/* Headline */}
         <motion.p
           className="font-black text-white text-center leading-none"
@@ -86,7 +96,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           whileTap={{ scale: 0.97 }}
         >
           <span className="font-black text-white uppercase" style={{ fontSize: 48, letterSpacing: 0 }}>
-            Get Started
+            Shop NHL Gear
           </span>
         </motion.button>
 
@@ -99,9 +109,9 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         >
           <div className="flex flex-col" style={{ gap: 36 }}>
             {[
-              { Icon: Shirt, label: "Pick your items" },
-              { Icon: QrCode, label: "Scan & Purchase" },
-              { Icon: Truck,  label: "Get It Delivered" },
+              { Icon: Shirt, label: "More teams, sizes & styles" },
+              { Icon: QrCode, label: "Easy checkout on your phone" },
+              { Icon: Truck,  label: "Delivered to your door" },
             ].map(({ Icon, label }, i) => (
               <div key={i} className="flex items-center" style={{ gap: 32 }}>
                 <Icon style={{ width: 56, height: 56, color: "rgba(255,255,255,0.7)", flexShrink: 0 }} strokeWidth={1.8} />
