@@ -116,7 +116,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           <div className="flex flex-col" style={{ gap: 36 }}>
             {[
               { Icon: Shirt, label: "More teams, sizes & styles" },
-              { Icon: QrCode, label: "Easy checkout" },
+              { Icon: QrCode, label: "Easy Online Checkout" },
               { Icon: Truck,  label: "Delivered to your door" },
             ].map(({ Icon, label }, i) => (
               <div key={i} className="flex items-center" style={{ gap: 32 }}>
