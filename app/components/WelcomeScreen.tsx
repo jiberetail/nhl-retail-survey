@@ -54,7 +54,13 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
 
         <motion.p
           className="font-black text-white text-center uppercase"
-          style={{ fontSize: 34, letterSpacing: 0, color: "rgba(255,255,255,0.82)", marginBottom: 18 }}
+          style={{
+            fontSize: 38,
+            letterSpacing: 0,
+            color: "rgba(255,255,255,0.88)",
+            marginBottom: 18,
+            textShadow: "0 3px 12px rgba(0,0,0,0.9)",
+          }}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.12 }}
@@ -110,7 +116,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           <div className="flex flex-col" style={{ gap: 36 }}>
             {[
               { Icon: Shirt, label: "More teams, sizes & styles" },
-              { Icon: QrCode, label: "Easy checkout on your phone" },
+              { Icon: QrCode, label: "Easy checkout" },
               { Icon: Truck,  label: "Delivered to your door" },
             ].map(({ Icon, label }, i) => (
               <div key={i} className="flex items-center" style={{ gap: 32 }}>
