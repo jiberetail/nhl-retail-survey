@@ -148,7 +148,15 @@ function NavButton({
   );
 }
 
-function QuestionShell({ question, children }: { question: string; children: ReactNode }) {
+function QuestionShell({
+  question,
+  intro,
+  children,
+}: {
+  question: string;
+  intro?: string;
+  children: ReactNode;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -157,6 +165,17 @@ function QuestionShell({ question, children }: { question: string; children: Rea
       transition={{ duration: 0.22, ease: "easeOut" }}
       className="w-full"
     >
+      {intro && (
+        <div className="text-center" style={{ marginBottom: 28 }}>
+          <p className="font-semibold text-black/65" style={{ fontSize: 38, lineHeight: 1.2 }}>
+            {intro}
+          </p>
+          <div
+            className="mx-auto"
+            style={{ width: 104, height: 6, marginTop: 22, background: "var(--action-blue)", borderRadius: 3 }}
+          />
+        </div>
+      )}
       <h2
         className="font-black text-black text-center"
         style={{ fontSize: 58, lineHeight: 1.04, marginBottom: 48 }}
@@ -253,18 +272,10 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
         setStep("affected");
         return;
       }
-      if (purchaseReason === "didNotWantToCarry") {
-        onComplete();
-        return;
-      }
       setStep("associate");
       return;
     }
     if (step === "affected") {
-      if (purchaseReason === "didNotWantToCarry") {
-        onComplete();
-        return;
-      }
       setStep("associate");
       return;
     }
@@ -315,7 +326,8 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
           {step === "purchaseReason" && (
             <QuestionShell
               key="purchaseReason"
-              question="Thank you for your recent purchase. Why did you decide to purchase online?"
+              intro="Thank you for your recent purchase."
+              question="Why did you decide to purchase online?"
             >
               <div className="flex flex-col" style={{ gap: 18 }}>
                 <OptionButton
@@ -335,7 +347,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
           )}
 
           {step === "experience" && (
-            <QuestionShell key="experience" question="Are you satisfied with your shopping experience?">
+            <QuestionShell key="experience" question="Are you satisfied with your NHL Shop NYC experience?">
               <div className="flex" style={{ gap: 18 }}>
                 <OptionButton active={shoppingSatisfied === "yes"} onClick={() => selectShoppingSatisfied("yes")} flex>
                   Yes
@@ -348,7 +360,7 @@ export function PurchaseSurveyScreen({ onComplete, onHome, onBack }: PurchaseSur
           )}
 
           {step === "affected" && (
-            <QuestionShell key="affected" question="What affected your shopping experience?">
+            <QuestionShell key="affected" question="What affected your experience?">
               <div className="flex flex-col" style={{ gap: 16 }}>
                 {affectedReasons.map(({ label, Icon }) => (
                   <OptionButton
