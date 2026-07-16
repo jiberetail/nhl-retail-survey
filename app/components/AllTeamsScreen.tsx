@@ -211,7 +211,8 @@ export function AllTeamsScreen({ onComplete, onHome, onBack }: AllTeamsScreenPro
               style={{
                 paddingLeft: 58, paddingRight: 58, paddingTop: 24, paddingBottom: 24,
                 borderRadius: 9999, fontSize: 36,
-                background: "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)",
+                background: "var(--action-blue-gradient)",
+                boxShadow: "0 14px 30px rgba(0,107,182,0.28)",
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

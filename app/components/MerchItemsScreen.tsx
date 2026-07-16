@@ -350,8 +350,14 @@ export function MerchItemsScreen({ teamName, category, demographic, onComplete, 
               <motion.button
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 onClick={() => { setAddToCartItem(null); setCartConfirmed(false); onContinueShopping(); }}
-                className="w-full font-black rounded-2xl border-2 border-black text-black bg-white"
-                style={{ paddingTop: 44, paddingBottom: 44, fontSize: 48 }}
+                className="w-full font-black rounded-2xl text-white"
+                style={{
+                  paddingTop: 44,
+                  paddingBottom: 44,
+                  fontSize: 48,
+                  background: "var(--action-blue-gradient)",
+                  boxShadow: "0 14px 30px rgba(0,107,182,0.26)",
+                }}
               >
                 Continue Shopping
               </motion.button>

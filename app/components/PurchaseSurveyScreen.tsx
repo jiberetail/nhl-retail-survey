@@ -16,6 +16,7 @@ type YesNo = "yes" | "no";
 type PurchaseReason = "notFoundInStore" | "didNotWantToCarry";
 
 const activeBg = "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)";
+const actionBg = "var(--action-blue-gradient)";
 const inactiveBg = "rgba(255,255,255,0.88)";
 
 const affectedReasons = [
@@ -133,10 +134,10 @@ function NavButton({
         width: 540,
         minHeight: 100,
         padding: "26px 30px",
-        background: disabled ? "#d1d5db" : primary ? activeBg : inactiveBg,
+        background: disabled ? "#d1d5db" : primary ? actionBg : inactiveBg,
         color: disabled ? "#9ca3af" : primary ? "#fff" : "#000",
         border: primary ? "none" : "2px solid rgba(0,0,0,0.22)",
-        boxShadow: disabled ? "none" : "0 12px 30px rgba(0,0,0,0.14)",
+        boxShadow: disabled ? "none" : primary ? "0 12px 30px rgba(0,107,182,0.26)" : "0 12px 30px rgba(0,0,0,0.14)",
         cursor: disabled ? "not-allowed" : "pointer",
         transition: "background 160ms ease, color 160ms ease, box-shadow 160ms ease",
       }}

@@ -62,12 +62,12 @@ export function EmailCaptureScreen({ onContinue, onHome }: EmailCaptureScreenPro
             >
 
               {/* Badge */}
-              <div className="inline-flex items-center justify-center rounded-full font-black text-white" style={{ background: "#cc0000", fontSize: 48, paddingLeft: 48, paddingRight: 48, paddingTop: 20, paddingBottom: 20, marginBottom: 48 }}>
-                GET 15% OFF
+              <div className="inline-flex items-center justify-center rounded-full font-black text-white" style={{ background: "var(--action-blue-gradient)", fontSize: 48, paddingLeft: 48, paddingRight: 48, paddingTop: 20, paddingBottom: 20, marginBottom: 48 }}>
+                GET 10% OFF
               </div>
 
               <h1 className="font-black text-black leading-tight" style={{ fontSize: 72, marginBottom: 24 }}>
-                Get 15% Off Your<br />Next In Store Purchase
+                Get 10% Off Your<br />Next In Store Purchase
               </h1>
 
               <p className="text-black/60" style={{ fontSize: 40, marginBottom: 60 }}>
@@ -95,7 +95,7 @@ export function EmailCaptureScreen({ onContinue, onHome }: EmailCaptureScreenPro
                   paddingTop: 44,
                   paddingBottom: 44,
                   background: isValid
-                    ? "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)"
+                    ? "var(--action-blue-gradient)"
                     : "#d1d5db",
                   color: isValid ? "#fff" : "#9ca3af",
                   cursor: isValid ? "pointer" : "not-allowed",
@@ -104,7 +104,7 @@ export function EmailCaptureScreen({ onContinue, onHome }: EmailCaptureScreenPro
                 whileTap={isValid ? { scale: 0.97 } : {}}
               >
                 <Mail style={{ width: 50, height: 50 }} strokeWidth={2.4} />
-                Send My 15% Off Code
+                Send My 10% Off Code
               </motion.button>
             </motion.div>
           ) : (
@@ -139,7 +139,8 @@ export function EmailCaptureScreen({ onContinue, onHome }: EmailCaptureScreenPro
 
               <div className="w-full overflow-hidden bg-white/60" style={{ height: 18, borderRadius: 9 }}>
                 <motion.div
-                  className="h-full bg-black"
+                  className="h-full"
+                  style={{ background: "var(--action-blue-gradient)" }}
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
                   transition={{ duration: 1.6, ease: "easeInOut" }}

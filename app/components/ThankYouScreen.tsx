@@ -218,7 +218,7 @@ export function ThankYouScreen({ email, onReset }: ThankYouScreenProps) {
               </div>
 
               <h2 className="font-black text-black" style={{ fontSize: 40, lineHeight: 1.08, marginBottom: 20 }}>
-                Your 15% Off Reward Is Here
+                Your 10% Off Reward Is Here
               </h2>
               <div style={{ height: 2, background: "#e5e7eb", marginBottom: 22 }} />
 
@@ -226,7 +226,7 @@ export function ThankYouScreen({ email, onReset }: ThankYouScreenProps) {
                 Thanks for visiting!
               </h3>
               <p style={{ fontSize: 27, lineHeight: 1.35, color: "#374151", marginBottom: 22 }}>
-                Enjoy 15% off your next in-store purchase. Show this reward at checkout when you shop with us again.
+                Enjoy 10% off your next in-store purchase. Show this reward at checkout when you shop with us again.
               </p>
 
               <div
@@ -240,10 +240,10 @@ export function ThankYouScreen({ email, onReset }: ThankYouScreenProps) {
                 }}
               >
                 <p className="font-black" style={{ fontSize: 21, color: "#6b7280" }}>
-                  YOUR 15% OFF CODE
+                  YOUR 10% OFF CODE
                 </p>
                 <p className="font-black text-black" style={{ fontSize: 62, lineHeight: 1, marginTop: 10 }}>
-                  NHL15
+                  NHL10
                 </p>
                 <p style={{ fontSize: 21, color: "#6b7280", marginTop: 12 }}>
                   Present this code during your next store visit.
@@ -255,7 +255,7 @@ export function ThankYouScreen({ email, onReset }: ThankYouScreenProps) {
                 style={{
                   minHeight: 84,
                   fontSize: 30,
-                  background: "linear-gradient(135deg, #000000 0%, #404040 50%, #c0c0c0 100%)",
+                  background: "var(--action-blue-gradient)",
                   borderRadius: 6,
                 }}
               >

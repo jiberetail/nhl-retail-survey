@@ -203,8 +203,8 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, onBack, 
             className="relative block overflow-hidden rounded-3xl"
             style={{
               padding: "26px 30px",
-              background: "linear-gradient(135deg, #050505 0%, #151515 54%, #d71920 100%)",
-              boxShadow: "0 22px 46px rgba(0,0,0,0.28), 0 0 0 7px rgba(215,25,32,0.18)",
+              background: "linear-gradient(135deg, #f5f6f8 0%, #c8cdd3 52%, #8d949d 100%)",
+              boxShadow: "0 22px 46px rgba(0,0,0,0.26), 0 0 0 7px rgba(168,174,182,0.28)",
             }}
           >
             <div className="absolute inset-0 pointer-events-none" style={{ border: "3px solid rgba(255,255,255,0.22)", borderRadius: 24 }} />
@@ -219,14 +219,14 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, onBack, 
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center" style={{ marginBottom: 12 }}>
-                  <span className="inline-flex items-center justify-center rounded-full" style={{ width: 54, height: 54, background: "#d71920" }}>
+                  <span className="inline-flex items-center justify-center rounded-full" style={{ width: 54, height: 54, background: "#111111" }}>
                     <ScanLine className="text-white" size={32} strokeWidth={3} />
                   </span>
                 </div>
-                <p className="font-black uppercase text-white leading-none" style={{ fontSize: 54 }}>
+                <p className="font-black uppercase text-black leading-none" style={{ fontSize: 54 }}>
                   Scan to complete your purchase
                 </p>
-                <p className="font-black text-white leading-tight" style={{ fontSize: 36, marginTop: 10 }}>
+                <p className="font-black text-black leading-tight" style={{ fontSize: 36, marginTop: 10 }}>
                   and have your items shipped home.
                 </p>
               </div>
@@ -241,8 +241,14 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, onBack, 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
             onClick={onContinueShopping}
-            className="flex-1 font-black rounded-2xl border-2 border-black text-black bg-white"
-            style={{ paddingTop: 36, paddingBottom: 36, fontSize: 38 }}
+            className="flex-1 font-black rounded-2xl text-white"
+            style={{
+              paddingTop: 36,
+              paddingBottom: 36,
+              fontSize: 38,
+              background: "var(--action-blue-gradient)",
+              boxShadow: "0 14px 30px rgba(0,107,182,0.26)",
+            }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
           >
@@ -254,11 +260,16 @@ export function OnlineAvailableScreen({ onComplete, onContinueShopping, onBack, 
             transition={{ duration: 0.5, delay: 0.7 }}
             onClick={onComplete}
             className="flex-1 rounded-2xl flex flex-col items-center justify-center"
-            style={{ paddingTop: 28, paddingBottom: 28, background: "#000000" }}
+            style={{
+              paddingTop: 28,
+              paddingBottom: 28,
+              background: "var(--action-blue-gradient)",
+              boxShadow: "0 14px 30px rgba(0,107,182,0.26)",
+            }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
           >
-            <span className="font-black" style={{ fontSize: 48, color: "#ff2222", lineHeight: 1.1 }}>GET 15% OFF</span>
+            <span className="font-black text-white" style={{ fontSize: 48, lineHeight: 1.1 }}>GET 10% OFF</span>
             <span className="font-semibold text-white" style={{ fontSize: 28, opacity: 0.9 }}>your next in store purchase</span>
           </motion.button>
         </div>
